@@ -1302,7 +1302,13 @@
 
     function renderFaceTabs() {
       const container = document.getElementById('faceTabs');
-      const faceNames = config.faceNames || Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      if (!container) return;
+      
+      if (!config.faceNames || config.faceNames.length === 0) {
+        config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+      }
+      
+      const faceNames = config.faceNames;
       
       container.innerHTML = faceNames.map((name, idx) => `
         <button class="face-tab ${idx === currentFaceIndex ? 'active' : ''}" onclick="selectFace(${idx})">
@@ -1316,6 +1322,14 @@
       renderFaceTabs();
       loadFacadePhoto();
       renderLiveMap();
+      
+      // Update the current face name display
+      const currentFaceName = config.faceNames[currentFaceIndex];
+      document.getElementById('currentFaceName').textContent = currentFaceName;
+      
+      // Update face defect count
+      const faceDefects = defects.filter(d => d.face === currentFaceName);
+      document.getElementById('faceDefectCount').textContent = faceDefects.length;
     }
 
     function updateFaces() {
@@ -1468,15 +1482,27 @@
     });
 
     function loadFacadePhoto() {
+      if (!config.faceNames || config.faceNames.length === 0) {
+        config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+      }
+      
+      if (currentFaceIndex >= config.faceNames.length) {
+        currentFaceIndex = 0;
+      }
+      
       const currentFaceName = config.faceNames[currentFaceIndex];
       if (config.facadePhotos && config.facadePhotos[currentFaceName]) {
         facadePhoto = config.facadePhotos[currentFaceName];
-        document.getElementById('facadeUploadZone').classList.add('has-photo');
-        document.getElementById('gridControls').style.display = 'flex';
+        const uploadZone = document.getElementById('facadeUploadZone');
+        const gridControls = document.getElementById('gridControls');
+        if (uploadZone) uploadZone.classList.add('has-photo');
+        if (gridControls) gridControls.style.display = 'flex';
       } else {
         facadePhoto = null;
-        document.getElementById('facadeUploadZone').classList.remove('has-photo');
-        document.getElementById('gridControls').style.display = 'none';
+        const uploadZone = document.getElementById('facadeUploadZone');
+        const gridControls = document.getElementById('gridControls');
+        if (uploadZone) uploadZone.classList.remove('has-photo');
+        if (gridControls) gridControls.style.display = 'none';
       }
     }
 
@@ -1504,9 +1530,23 @@
     // Live Map Rendering with non-overlapping pins
     function renderLiveMap() {
       const canvas = document.getElementById('liveMapCanvas');
+      if (!canvas) return;
+      
       const ctx = canvas.getContext('2d');
+      
+      // Ensure faceNames exists
+      if (!config.faceNames || config.faceNames.length === 0) {
+        config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+      }
+      
+      // Ensure currentFaceIndex is valid
+      if (currentFaceIndex >= config.faceNames.length) {
+        currentFaceIndex = 0;
+      }
+      
       const currentFaceName = config.faceNames[currentFaceIndex];
-      showGrid = document.getElementById('gridToggle').checked;
+      const gridToggleElement = document.getElementById('gridToggle');
+      showGrid = gridToggleElement ? gridToggleElement.checked : true;
       
       const canvasWidth = 800;
       const canvasHeight = 600;
@@ -1528,6 +1568,10 @@
         const img = new Image();
         img.onload = function() {
           ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+          drawGrid();
+        };
+        img.onerror = function() {
+          console.error('Error loading facade photo');
           drawGrid();
         };
         img.src = facadePhoto;
@@ -1594,8 +1638,10 @@
         });
         
         // Update face defect count
-        document.getElementById('faceDefectCount').textContent = faceDefects.length;
-        document.getElementById('currentFaceName').textContent = currentFaceName;
+        const countElement = document.getElementById('faceDefectCount');
+        const nameElement = document.getElementById('currentFaceName');
+        if (countElement) countElement.textContent = faceDefects.length;
+        if (nameElement) nameElement.textContent = currentFaceName;
         
         Object.entries(defectsByLocation).forEach(([key, locationDefects]) => {
           const [drop, level] = key.split('-').map(Number);
@@ -1742,28 +1788,35 @@
         return;
       }
 
-      // Calculate category counts
-      const categoryCounts = {
-        crack: 0,
-        spalling: 0,
-        water: 0,
-        corrosion: 0,
-        other: 0
-      };
-      
-      defects.forEach(d => {
-        categoryCounts[d.category]++;
-      });
-
-      const categoryLabels = {
-        crack: 'Cracked Concrete',
-        spalling: 'Spalling',
-        water: 'Water Damage',
-        corrosion: 'Corrosion',
-        other: 'Other'
-      };
-
       try {
+        // Ensure faceNames exists
+        if (!config.faceNames || config.faceNames.length === 0) {
+          config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+        }
+
+        // Calculate category counts
+        const categoryCounts = {
+          crack: 0,
+          spalling: 0,
+          water: 0,
+          corrosion: 0,
+          other: 0
+        };
+        
+        defects.forEach(d => {
+          if (categoryCounts[d.category] !== undefined) {
+            categoryCounts[d.category]++;
+          }
+        });
+
+        const categoryLabels = {
+          crack: 'Cracked Concrete',
+          spalling: 'Spalling',
+          water: 'Water Damage',
+          corrosion: 'Corrosion',
+          other: 'Other'
+        };
+
         // Create summary page with chart
         let html = `
           <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
@@ -1798,7 +1851,7 @@
               <p style="font-size: 18px; color: #95a5a6; margin-top: 60px;">
                 Generated: ${new Date().toLocaleDateString()}<br>
                 Total Defects Found: ${defects.length}<br>
-                Inspected by: ${config.createdBy}
+                Inspected by: ${config.createdBy || 'Team'}
               </p>
             </div>
 
@@ -1812,7 +1865,7 @@
                   <div class="stat-label">Total Defects</div>
                 </div>
                 <div class="stat-box">
-                  <div class="stat-number">${config.numFaces}</div>
+                  <div class="stat-number">${config.faceNames.length}</div>
                   <div class="stat-label">Faces Inspected</div>
                 </div>
                 <div class="stat-box">
@@ -1823,7 +1876,7 @@
 
               <h3 style="color: #2c3e50; margin-top: 40px;">Defects by Category</h3>
               <div class="category-list">
-                ${Object.entries(categoryCounts).map(([key, count]) => `
+                ${Object.entries(categoryCounts).filter(([key, count]) => count > 0).map(([key, count]) => `
                   <div class="category-item">
                     <strong>${categoryLabels[key]}:</strong> ${count} defect${count !== 1 ? 's' : ''}
                     (${((count / defects.length) * 100).toFixed(1)}%)
@@ -1873,12 +1926,12 @@
               </tr>
               <tr>
                 ${d1 ? `<td>
-                  ${categoryLabels[d1.category]}<br>
+                  ${categoryLabels[d1.category] || 'Unknown'}<br>
                   <em>${d1.description}</em><br>
                   <small>Face: ${d1.face} | Drop: ${d1.drop} | Level: ${d1.level} | By: ${d1.addedBy}</small>
                 </td>` : '<td></td>'}
                 ${d2 ? `<td>
-                  ${categoryLabels[d2.category]}<br>
+                  ${categoryLabels[d2.category] || 'Unknown'}<br>
                   <em>${d2.description}</em><br>
                   <small>Face: ${d2.face} | Drop: ${d2.drop} | Level: ${d2.level} | By: ${d2.addedBy}</small>
                 </td>` : '<td></td>'}
@@ -1918,7 +1971,7 @@
         
       } catch (error) {
         console.error('Export error:', error);
-        alert('❌ Error: ' + error.message);
+        alert('❌ Error creating report: ' + error.message + '\n\nPlease check the browser console for details.');
       }
     }
 
@@ -2026,182 +2079,205 @@
     }
 
     function exportDefectMaps() {
-      if (userRole !== 'manager') return;
+      if (userRole !== 'manager') {
+        alert('Only managers can export');
+        return;
+      }
+      
       if (defects.length === 0) {
         alert('No defects to map');
         return;
       }
 
-      let downloadCount = 0;
-      
-      config.faceNames.forEach((faceName, faceIdx) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = 1200;
-        canvas.height = 1600;
-        
-        const margin = 60;
-        const gridWidth = canvas.width - (margin * 2);
-        const gridHeight = canvas.height - 250;
-        const cellWidth = gridWidth / config.maxDrops;
-        const cellHeight = gridHeight / config.maxLevels;
-        
-        ctx.fillStyle = '#1a1a1a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Check for facade photo
-        if (config.facadePhotos && config.facadePhotos[faceName]) {
-          const img = new Image();
-          img.onload = function() {
-            ctx.save();
-            ctx.globalAlpha = 0.6;
-            ctx.drawImage(img, margin, 180, gridWidth, gridHeight);
-            ctx.restore();
-            drawFaceMap();
-          };
-          img.src = config.facadePhotos[faceName];
-        } else {
-          drawFaceMap();
+      try {
+        // Ensure faceNames exists
+        if (!config.faceNames || config.faceNames.length === 0) {
+          config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
         }
+
+        let downloadCount = 0;
         
-        function drawFaceMap() {
-          ctx.fillStyle = '#f97316';
-          ctx.font = 'bold 36px Arial';
-          ctx.fillText(`${faceName} - Defect Map`, margin, 60);
+        config.faceNames.forEach((faceName, faceIdx) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
           
-          ctx.fillStyle = '#999';
-          ctx.font = '16px Arial';
-          const faceDefects = defects.filter(d => d.face === faceName);
-          ctx.fillText(`Project: ${config.projectName || projectId}`, margin, 95);
-          ctx.fillText(`Defects: ${faceDefects.length}`, margin, 120);
-          ctx.fillText(`Generated: ${new Date().toLocaleString()}`, margin, 145);
+          canvas.width = 1200;
+          canvas.height = 1600;
           
-          const gridStartY = 180;
+          const margin = 60;
+          const gridWidth = canvas.width - (margin * 2);
+          const gridHeight = canvas.height - 250;
+          const cellWidth = gridWidth / config.maxDrops;
+          const cellHeight = gridHeight / config.maxLevels;
           
-          // Grid
-          ctx.strokeStyle = '#444';
-          ctx.lineWidth = 3;
-          ctx.strokeRect(margin, gridStartY, gridWidth, gridHeight);
+          ctx.fillStyle = '#1a1a1a';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
           
-          ctx.strokeStyle = '#333';
-          ctx.lineWidth = 1;
-          
-          for (let i = 1; i < config.maxLevels; i++) {
-            const y = gridStartY + (i * cellHeight);
-            ctx.beginPath();
-            ctx.moveTo(margin, y);
-            ctx.lineTo(margin + gridWidth, y);
-            ctx.stroke();
+          // Check for facade photo
+          if (config.facadePhotos && config.facadePhotos[faceName]) {
+            const img = new Image();
+            img.onload = function() {
+              ctx.save();
+              ctx.globalAlpha = 0.6;
+              ctx.drawImage(img, margin, 180, gridWidth, gridHeight);
+              ctx.restore();
+              drawFaceMap();
+            };
+            img.onerror = function() {
+              console.error('Error loading facade photo for', faceName);
+              drawFaceMap();
+            };
+            img.src = config.facadePhotos[faceName];
+          } else {
+            drawFaceMap();
           }
           
-          for (let i = 1; i < config.maxDrops; i++) {
-            const x = margin + (i * cellWidth);
-            ctx.beginPath();
-            ctx.moveTo(x, gridStartY);
-            ctx.lineTo(x, gridStartY + gridHeight);
-            ctx.stroke();
-          }
-          
-          // Labels
-          ctx.fillStyle = '#666';
-          ctx.font = '12px Arial';
-          ctx.textAlign = 'right';
-          
-          for (let i = 0; i < config.maxLevels; i++) {
-            const displayLevel = config.maxLevels - i;
-            const y = gridStartY + (i * cellHeight) + (cellHeight / 2) + 4;
-            ctx.fillText(displayLevel.toString(), margin - 10, y);
-          }
-          
-          ctx.textAlign = 'center';
-          for (let i = 0; i < config.maxDrops; i++) {
-            const x = margin + (i * cellWidth) + (cellWidth / 2);
-            ctx.fillText((i + 1).toString(), x, gridStartY - 10);
-          }
-          
-          // Plot defects with spiral pattern (no overlaps)
-          const defectsByLocation = {};
-          faceDefects.forEach(d => {
-            const key = `${d.drop}-${d.level}`;
-            if (!defectsByLocation[key]) defectsByLocation[key] = [];
-            defectsByLocation[key].push(d);
-          });
-          
-          const categoryColors = {
-            crack: '#ef4444',
-            spalling: '#f97316',
-            water: '#3b82f6',
-            corrosion: '#a855f7',
-            other: '#6b7280'
-          };
-          
-          Object.entries(defectsByLocation).forEach(([key, locationDefects]) => {
-            const [drop, level] = key.split('-').map(Number);
+          function drawFaceMap() {
+            ctx.fillStyle = '#f97316';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText(`${faceName} - Defect Map`, margin, 60);
             
-            if (drop > config.maxDrops || level > config.maxLevels) return;
+            ctx.fillStyle = '#999';
+            ctx.font = '16px Arial';
+            const faceDefects = defects.filter(d => d.face === faceName);
+            ctx.fillText(`Project: ${config.projectName || projectId}`, margin, 95);
+            ctx.fillText(`Defects: ${faceDefects.length}`, margin, 120);
+            ctx.fillText(`Generated: ${new Date().toLocaleString()}`, margin, 145);
             
-            const baseX = margin + ((drop - 1) * cellWidth);
-            const baseY = gridStartY + ((config.maxLevels - level) * cellHeight);
-            const count = locationDefects.length;
-            const markerSize = Math.min(15, cellWidth / (count + 2));
+            const gridStartY = 180;
             
-            locationDefects.forEach((d, idx) => {
-              let x, y;
+            // Grid
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(margin, gridStartY, gridWidth, gridHeight);
+            
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            
+            for (let i = 1; i < config.maxLevels; i++) {
+              const y = gridStartY + (i * cellHeight);
+              ctx.beginPath();
+              ctx.moveTo(margin, y);
+              ctx.lineTo(margin + gridWidth, y);
+              ctx.stroke();
+            }
+            
+            for (let i = 1; i < config.maxDrops; i++) {
+              const x = margin + (i * cellWidth);
+              ctx.beginPath();
+              ctx.moveTo(x, gridStartY);
+              ctx.lineTo(x, gridStartY + gridHeight);
+              ctx.stroke();
+            }
+            
+            // Labels
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            
+            for (let i = 0; i < config.maxLevels; i++) {
+              const displayLevel = config.maxLevels - i;
+              const y = gridStartY + (i * cellHeight) + (cellHeight / 2) + 4;
+              ctx.fillText(displayLevel.toString(), margin - 10, y);
+            }
+            
+            ctx.textAlign = 'center';
+            for (let i = 0; i < config.maxDrops; i++) {
+              const x = margin + (i * cellWidth) + (cellWidth / 2);
+              ctx.fillText((i + 1).toString(), x, gridStartY - 10);
+            }
+            
+            // Plot defects with spiral pattern (no overlaps)
+            const defectsByLocation = {};
+            faceDefects.forEach(d => {
+              const key = `${d.drop}-${d.level}`;
+              if (!defectsByLocation[key]) defectsByLocation[key] = [];
+              defectsByLocation[key].push(d);
+            });
+            
+            const categoryColors = {
+              crack: '#ef4444',
+              spalling: '#f97316',
+              water: '#3b82f6',
+              corrosion: '#a855f7',
+              other: '#6b7280'
+            };
+            
+            Object.entries(defectsByLocation).forEach(([key, locationDefects]) => {
+              const [drop, level] = key.split('-').map(Number);
               
-              if (count === 1) {
-                x = baseX + (cellWidth / 2);
-                y = baseY + (cellHeight / 2);
-              } else {
-                // Spiral pattern
-                const angle = (idx / count) * Math.PI * 2;
-                const radius = Math.min(cellWidth, cellHeight) * 0.3;
-                x = baseX + (cellWidth / 2) + Math.cos(angle) * radius;
-                y = baseY + (cellHeight / 2) + Math.sin(angle) * radius;
+              if (drop > config.maxDrops || level > config.maxLevels) return;
+              
+              const baseX = margin + ((drop - 1) * cellWidth);
+              const baseY = gridStartY + ((config.maxLevels - level) * cellHeight);
+              const count = locationDefects.length;
+              const markerSize = Math.min(15, cellWidth / (count + 2));
+              
+              locationDefects.forEach((d, idx) => {
+                let x, y;
+                
+                if (count === 1) {
+                  x = baseX + (cellWidth / 2);
+                  y = baseY + (cellHeight / 2);
+                } else {
+                  // Spiral pattern
+                  const angle = (idx / count) * Math.PI * 2;
+                  const radius = Math.min(cellWidth, cellHeight) * 0.3;
+                  x = baseX + (cellWidth / 2) + Math.cos(angle) * radius;
+                  y = baseY + (cellHeight / 2) + Math.sin(angle) * radius;
+                }
+                
+                ctx.fillStyle = categoryColors[d.category] || '#f97316';
+                ctx.beginPath();
+                ctx.arc(x, y, markerSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${Math.max(10, markerSize)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText(d.defectNumber.toString(), x, y + (markerSize / 3));
+              });
+            });
+            
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Arial';
+            const legendY = gridStartY + gridHeight + 40;
+            ctx.fillText('🟠 Markers show defect locations (color = category)', margin, legendY);
+            ctx.fillText('Multiple markers = multiple defects at that location', margin, legendY + 25);
+            
+            canvas.toBlob((blob) => {
+              if (!blob) {
+                console.error('Failed to create blob for', faceName);
+                return;
               }
               
-              ctx.fillStyle = categoryColors[d.category] || '#f97316';
-              ctx.beginPath();
-              ctx.arc(x, y, markerSize, 0, Math.PI * 2);
-              ctx.fill();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `defect-map-${faceName.replace(/\s+/g, '-')}-${projectId}-${new Date().toISOString().split('T')[0]}.png`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
               
-              ctx.strokeStyle = '#fff';
-              ctx.lineWidth = 2;
-              ctx.stroke();
-              
-              ctx.fillStyle = '#fff';
-              ctx.font = `bold ${Math.max(10, markerSize)}px Arial`;
-              ctx.textAlign = 'center';
-              ctx.fillText(d.defectNumber.toString(), x, y + (markerSize / 3));
-            });
-          });
-          
-          ctx.textAlign = 'left';
-          ctx.fillStyle = '#666';
-          ctx.font = '14px Arial';
-          const legendY = gridStartY + gridHeight + 40;
-          ctx.fillText('🟠 Markers show defect locations (color = category)', margin, legendY);
-          ctx.fillText('Multiple markers = multiple defects at that location', margin, legendY + 25);
-          
-          canvas.toBlob((blob) => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `defect-map-${faceName.replace(/\s+/g, '-')}-${projectId}-${new Date().toISOString().split('T')[0]}.png`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            downloadCount++;
-            if (downloadCount === config.faceNames.length) {
-              setTimeout(() => {
-                alert(`✅ Generated ${config.faceNames.length} defect maps!`);
-              }, 500);
-            }
-          }, 'image/png');
-        }
-      });
+              downloadCount++;
+              if (downloadCount === config.faceNames.length) {
+                setTimeout(() => {
+                  alert(`✅ Generated ${config.faceNames.length} defect maps!`);
+                }, 500);
+              }
+            }, 'image/png');
+          }
+        });
+      } catch (error) {
+        console.error('Map export error:', error);
+        alert('❌ Error creating maps: ' + error.message + '\n\nPlease check the browser console for details.');
+      }
     }
   </script>
 </body>
