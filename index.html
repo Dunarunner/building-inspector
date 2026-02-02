@@ -426,7 +426,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Live Map Preview */
     .map-preview {
       background: #1a1a1a;
       border-radius: 8px;
@@ -503,6 +502,130 @@
     .grid-controls button:hover {
       background: #444;
     }
+
+    .grid-controls button.active {
+      background: #f97316;
+    }
+
+    .face-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .face-tab {
+      padding: 8px 16px;
+      background: #333;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .face-tab.active {
+      background: #f97316;
+    }
+
+    .face-tab:hover {
+      background: #444;
+    }
+
+    .face-tab.active:hover {
+      background: #f97316;
+    }
+
+    .add-face-btn {
+      padding: 8px 16px;
+      background: #10b981;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .project-list {
+      display: grid;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .project-item {
+      background: #333;
+      padding: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .project-item:hover {
+      border-color: #f97316;
+      background: #3d3d3d;
+    }
+
+    .project-item h4 {
+      color: #f97316;
+      margin-bottom: 8px;
+    }
+
+    .project-item p {
+      color: #999;
+      font-size: 13px;
+      margin: 4px 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+      margin-left: 12px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #333;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #f97316;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
     
     @media (max-width: 768px) {
       .form-row {
@@ -545,7 +668,7 @@
       </div>
 
       <div class="role-cards">
-        <button class="role-card" onclick="startSession('worker')" type="button">
+        <button class="role-card" type="button" id="workerButton">
           <h3>🪂 Worker</h3>
           <ul>
             <li>Log defects</li>
@@ -555,23 +678,65 @@
           </ul>
         </button>
 
-        <button class="role-card" onclick="startSession('manager')" type="button">
+        <button class="role-card" type="button" id="managerButton">
           <h3>👔 Manager</h3>
           <ul>
             <li>All worker features</li>
-            <li>Create projects</li>
+            <li>Create/view projects</li>
             <li>Configure settings</li>
             <li>Export reports</li>
-            <li>Delete defects</li>
+            <li>Password: 1234</li>
           </ul>
         </button>
       </div>
     </div>
+  </div>
 
-    <!-- Firebase Setup Instructions -->
-    <div class="card" style="margin-top: 24px; text-align: left;">
-      <h3 style="color: #f97316; margin-bottom: 16px;">🔧 Firebase Already Configured!</h3>
-      <p style="color: #10b981;">✅ Your Firebase database is ready to use. Just enter a project ID and start logging defects!</p>
+  <!-- Manager Projects List -->
+  <div id="projectsScreen" class="setup-screen hidden">
+    <div class="card">
+      <h2>📋 Your Projects</h2>
+      <p style="margin-bottom: 24px;">Select an existing project or create a new one</p>
+
+      <button class="btn" onclick="showCreateProject()" style="margin-bottom: 24px;">
+        ➕ Create New Project
+      </button>
+
+      <div id="projectsList" class="project-list"></div>
+
+      <button class="btn btn-red" onclick="backToSetup()" style="margin-top: 24px;">
+        ← Back
+      </button>
+    </div>
+  </div>
+
+  <!-- Create Project Screen -->
+  <div id="createProjectScreen" class="setup-screen hidden">
+    <div class="card">
+      <h2>➕ Create New Project</h2>
+      
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label>Project ID</label>
+        <input type="text" id="newProjectId" class="form-control" placeholder="e.g., TOWER-A-2024">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label>Project Name</label>
+        <input type="text" id="newProjectName" class="form-control" placeholder="e.g., Harbor Tower Inspection">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label>Number of Faces</label>
+        <input type="number" id="newProjectFaces" class="form-control" value="4" min="1" max="20">
+      </div>
+
+      <button class="btn" onclick="createNewProject()">
+        Create Project
+      </button>
+
+      <button class="btn btn-red" onclick="backToProjects()" style="margin-top: 16px;">
+        ← Back
+      </button>
     </div>
   </div>
 
@@ -627,10 +792,7 @@
             <div class="form-group">
               <label>Face</label>
               <select id="face" class="form-control">
-                <option>North</option>
-                <option>South</option>
-                <option>East</option>
-                <option>West</option>
+                <!-- Faces populated dynamically -->
               </select>
             </div>
           </div>
@@ -693,23 +855,30 @@
     <!-- Live Map View -->
     <div id="liveMapView" class="hidden">
       <div class="card">
-        <h2 style="margin: 0 0 16px 0; color: #f97316;">Live Defect Map</h2>
-        
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label>Select Face to View</label>
-          <select id="mapFaceSelect" class="form-control" onchange="renderLiveMap()">
-            <option>North</option>
-            <option>South</option>
-            <option>East</option>
-            <option>West</option>
-          </select>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+          <h2 style="margin: 0; color: #f97316;">Live Defect Map</h2>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 14px;">Grid</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="gridToggle" checked onchange="renderLiveMap()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
+        
+        <div class="face-tabs" id="faceTabs"></div>
 
         <button class="facade-photo-upload" id="facadeUploadZone" onclick="document.getElementById('facadePhotoInput').click()" type="button">
           <p style="margin: 0; color: #f97316; font-weight: bold;">📸 Click to Upload Facade Photo (Optional)</p>
           <p style="margin: 8px 0 0 0; font-size: 12px; color: #999;">Adds building photo behind the grid for precise defect mapping</p>
         </button>
         <input type="file" id="facadePhotoInput" accept="image/*" style="display: none;">
+
+        <div style="text-align: center; margin-bottom: 12px;">
+          <span style="color: #999; font-size: 14px;">
+            <span id="currentFaceName">Face 1</span> Defects: <span id="faceDefectCount">0</span>
+          </span>
+        </div>
 
         <div class="map-preview">
           <div class="map-canvas-container">
@@ -753,6 +922,14 @@
             <input type="text" id="projectNameInput" class="form-control" placeholder="e.g., Harbor Tower Inspection">
           </div>
 
+          <h3 style="color: #999; font-size: 14px; margin-top: 16px; margin-bottom: -8px;">FACE MANAGEMENT</h3>
+          <div class="form-group">
+            <label>Number of Faces</label>
+            <input type="number" id="numFaces" class="form-control" value="4" min="1" max="20" onchange="updateFaces()">
+          </div>
+
+          <div id="faceNamesList"></div>
+
           <button class="btn btn-purple" onclick="saveConfig()">
             💾 Save Configuration
           </button>
@@ -769,8 +946,9 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-  <!-- jsPDF for PDF export -->
+  <!-- jsPDF and chart.js for reports -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <script>
     // Firebase Configuration
@@ -794,6 +972,7 @@
     }
 
     // Application State
+    const MANAGER_PASSWORD = "1234";
     let projectId = '';
     let userName = '';
     let userRole = '';
@@ -803,9 +982,12 @@
       maxLevels: 10,
       projectName: '',
       createdBy: '',
-      facadePhotos: {} // Store facade photos per face
+      numFaces: 4,
+      faceNames: ['Face 1', 'Face 2', 'Face 3', 'Face 4'],
+      facadePhotos: {}
     };
     let currentView = 'entry';
+    let currentFaceIndex = 0;
     let defectsRef = null;
     let configRef = null;
     let facadePhoto = null;
@@ -815,17 +997,144 @@
       scaleX: 1,
       scaleY: 1
     };
+    let showGrid = true;
 
-    // Add touch event support for iOS
+    // Touch event support
     document.addEventListener('DOMContentLoaded', function() {
-      // Make all buttons work better on iOS
-      document.querySelectorAll('button, .role-card').forEach(function(el) {
-        el.addEventListener('touchstart', function() {}, {passive: true});
-      });
+      const workerBtn = document.getElementById('workerButton');
+      const managerBtn = document.getElementById('managerButton');
+      
+      if (workerBtn) {
+        workerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          startSession('worker');
+        }, false);
+        workerBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          startSession('worker');
+        }, false);
+      }
+      
+      if (managerBtn) {
+        managerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const password = prompt('Enter manager password:');
+          if (password === MANAGER_PASSWORD) {
+            loadManagerProjects();
+          } else {
+            alert('Incorrect password!');
+          }
+        }, false);
+        managerBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          const password = prompt('Enter manager password:');
+          if (password === MANAGER_PASSWORD) {
+            loadManagerProjects();
+          } else {
+            alert('Incorrect password!');
+          }
+        }, false);
+      }
     });
 
+    // Manager Project Functions
+    function loadManagerProjects() {
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('projectsScreen').classList.remove('hidden');
+      
+      const projectsListRef = db.ref('inspections');
+      projectsListRef.once('value').then((snapshot) => {
+        const container = document.getElementById('projectsList');
+        
+        if (!snapshot.exists()) {
+          container.innerHTML = '<div class="empty-state"><p>No projects yet. Create your first one!</p></div>';
+          return;
+        }
+        
+        const projects = [];
+        snapshot.forEach((child) => {
+          const projectData = child.val();
+          projects.push({
+            id: child.key,
+            name: projectData.config?.projectName || child.key,
+            createdBy: projectData.config?.createdBy || 'Unknown',
+            defectCount: projectData.defects ? Object.keys(projectData.defects).length : 0,
+            faces: projectData.config?.numFaces || 4
+          });
+        });
+        
+        container.innerHTML = projects.map(p => `
+          <div class="project-item" onclick="selectProject('${p.id}')">
+            <h4>${p.name}</h4>
+            <p>ID: ${p.id}</p>
+            <p>Created by: ${p.createdBy} | Defects: ${p.defectCount} | Faces: ${p.faces}</p>
+          </div>
+        `).join('');
+      });
+    }
+
+    function selectProject(pid) {
+      const name = document.getElementById('userName').value.trim() || prompt('Enter your name:');
+      if (!name) return;
+      
+      document.getElementById('userName').value = name;
+      document.getElementById('projectId').value = pid;
+      
+      document.getElementById('projectsScreen').classList.add('hidden');
+      startSession('manager', true);
+    }
+
+    function showCreateProject() {
+      document.getElementById('projectsScreen').classList.add('hidden');
+      document.getElementById('createProjectScreen').classList.remove('hidden');
+    }
+
+    function createNewProject() {
+      const pid = document.getElementById('newProjectId').value.trim();
+      const pname = document.getElementById('newProjectName').value.trim();
+      const numFaces = parseInt(document.getElementById('newProjectFaces').value);
+      
+      if (!pid || !pname) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      const name = document.getElementById('userName').value.trim() || prompt('Enter your name:');
+      if (!name) return;
+      
+      document.getElementById('userName').value = name;
+      document.getElementById('projectId').value = pid;
+      
+      // Create project with initial config
+      const sanitizedId = pid.replace(/[.#$[\]]/g, '-');
+      const newConfig = {
+        maxDrops: 15,
+        maxLevels: 10,
+        projectName: pname,
+        createdBy: name,
+        numFaces: numFaces,
+        faceNames: Array.from({length: numFaces}, (_, i) => `Face ${i + 1}`),
+        facadePhotos: {}
+      };
+      
+      db.ref(`inspections/${sanitizedId}/config`).set(newConfig).then(() => {
+        document.getElementById('createProjectScreen').classList.add('hidden');
+        startSession('manager', true);
+      });
+    }
+
+    function backToProjects() {
+      document.getElementById('createProjectScreen').classList.add('hidden');
+      loadManagerProjects();
+    }
+
+    function backToSetup() {
+      document.getElementById('projectsScreen').classList.add('hidden');
+      document.getElementById('setupScreen').classList.remove('hidden');
+    }
+
     // Session Management
-    function startSession(role) {
+    function startSession(role, skipPasswordCheck = false) {
       const inputUserName = document.getElementById('userName').value.trim();
       const inputProjectId = document.getElementById('projectId').value.trim();
       
@@ -840,7 +1149,7 @@
       }
 
       if (!db) {
-        alert('Firebase not configured. Please check setup.');
+        alert('Firebase not configured');
         return;
       }
 
@@ -849,51 +1158,38 @@
       userRole = role;
 
       document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('projectsScreen').classList.add('hidden');
       document.getElementById('loadingScreen').classList.remove('hidden');
 
       defectsRef = db.ref(`inspections/${projectId}/defects`);
       configRef = db.ref(`inspections/${projectId}/config`);
 
-      // Check if project exists
       configRef.once('value').then((configSnapshot) => {
         if (configSnapshot.exists()) {
-          // Project exists - load it
           config = configSnapshot.val();
-          
-          // For workers, verify project exists
-          if (role === 'worker') {
-            loadExistingProject();
-          } else {
-            loadExistingProject();
-          }
+          loadExistingProject();
         } else {
-          // Project doesn't exist
           if (role === 'manager') {
-            // Manager creates new project
             config.createdBy = userName;
             config.projectName = projectId;
             configRef.set(config).then(() => {
               loadExistingProject();
             });
           } else {
-            // Worker cannot create project
-            alert('This project does not exist. Please ask a manager to create it first, or enter an existing project ID.');
+            alert('This project does not exist. Please ask a manager to create it first.');
             document.getElementById('loadingScreen').classList.add('hidden');
             document.getElementById('setupScreen').classList.remove('hidden');
           }
         }
       }).catch(error => {
-        console.error('Error checking project:', error);
-        alert('Error connecting to database. Please try again.');
+        alert('Error connecting: ' + error.message);
         document.getElementById('loadingScreen').classList.add('hidden');
         document.getElementById('setupScreen').classList.remove('hidden');
       });
     }
 
     function loadExistingProject() {
-      Promise.all([
-        defectsRef.once('value')
-      ]).then(([defectsSnapshot]) => {
+      defectsRef.once('value').then((defectsSnapshot) => {
         if (defectsSnapshot.exists()) {
           const defectsObj = defectsSnapshot.val();
           defects = Object.values(defectsObj);
@@ -912,9 +1208,8 @@
           document.getElementById('managerToolbar').style.display = 'flex';
         }
 
-        // Load facade photo for current face if exists
+        populateFaceSelectors();
         loadFacadePhoto();
-
         updateUI();
         setSyncIndicator('connected');
       });
@@ -961,8 +1256,9 @@
           document.getElementById('maxDrops').value = config.maxDrops;
           document.getElementById('maxLevels').value = config.maxLevels;
           document.getElementById('projectNameInput').value = config.projectName || '';
+          document.getElementById('numFaces').value = config.numFaces || 4;
           
-          // Reload facade photo if it changed
+          populateFaceSelectors();
           loadFacadePhoto();
           if (currentView === 'liveMap') {
             renderLiveMap();
@@ -972,11 +1268,7 @@
 
       const connectedRef = db.ref('.info/connected');
       connectedRef.on('value', (snap) => {
-        if (snap.val() === true) {
-          setSyncIndicator('connected');
-        } else {
-          setSyncIndicator('offline');
-        }
+        setSyncIndicator(snap.val() === true ? 'connected' : 'offline');
       });
     }
 
@@ -997,12 +1289,74 @@
       }
     }
 
+    // Face Management
+    function populateFaceSelectors() {
+      const faceSelect = document.getElementById('face');
+      const faceNames = config.faceNames || Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      
+      faceSelect.innerHTML = faceNames.map(name => `<option>${name}</option>`).join('');
+      
+      renderFaceTabs();
+      updateFaceNamesConfig();
+    }
+
+    function renderFaceTabs() {
+      const container = document.getElementById('faceTabs');
+      const faceNames = config.faceNames || Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      
+      container.innerHTML = faceNames.map((name, idx) => `
+        <button class="face-tab ${idx === currentFaceIndex ? 'active' : ''}" onclick="selectFace(${idx})">
+          ${name}
+        </button>
+      `).join('');
+    }
+
+    function selectFace(index) {
+      currentFaceIndex = index;
+      renderFaceTabs();
+      loadFacadePhoto();
+      renderLiveMap();
+    }
+
+    function updateFaces() {
+      const numFaces = parseInt(document.getElementById('numFaces').value);
+      config.numFaces = numFaces;
+      
+      if (!config.faceNames || config.faceNames.length !== numFaces) {
+        config.faceNames = Array.from({length: numFaces}, (_, i) => 
+          config.faceNames?.[i] || `Face ${i + 1}`
+        );
+      }
+      
+      updateFaceNamesConfig();
+    }
+
+    function updateFaceNamesConfig() {
+      const container = document.getElementById('faceNamesList');
+      const faceNames = config.faceNames || Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      
+      container.innerHTML = faceNames.map((name, idx) => `
+        <div class="form-group">
+          <label>Face ${idx + 1} Name</label>
+          <input type="text" class="form-control" value="${name}" 
+                 onchange="updateFaceName(${idx}, this.value)">
+        </div>
+      `).join('');
+    }
+
+    function updateFaceName(index, value) {
+      if (!config.faceNames) {
+        config.faceNames = Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      }
+      config.faceNames[index] = value;
+    }
+
     // Defect Management
     document.getElementById('photoInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
         if (file.size > 5 * 1024 * 1024) {
-          alert('Image too large. Please use a smaller image (under 5MB)');
+          alert('Image too large (max 5MB)');
           e.target.value = '';
           return;
         }
@@ -1028,10 +1382,9 @@
           defectsRef.child(newDefect.id.toString()).set(newDefect).then(() => {
             document.getElementById('description').value = '';
             e.target.value = '';
-            alert(`✅ Defect #${newDefect.defectNumber} logged by ${userName}!`);
+            alert(`✅ Defect #${newDefect.defectNumber} logged!`);
           }).catch(error => {
-            console.error('Error saving defect:', error);
-            alert('Error saving defect. Please try again.');
+            alert('Error saving: ' + error.message);
             setSyncIndicator('offline');
           });
         };
@@ -1042,7 +1395,7 @@
     function deleteDefect(id) {
       if (userRole !== 'manager') return;
       
-      if (confirm('Delete this defect? This will affect all team members.')) {
+      if (confirm('Delete this defect?')) {
         setSyncIndicator('syncing');
         
         defectsRef.child(id.toString()).remove().then(() => {
@@ -1057,9 +1410,6 @@
           defectsRef.set(updates).then(() => {
             renderDefectList();
           });
-        }).catch(error => {
-          console.error('Error deleting defect:', error);
-          alert('Error deleting defect. Please try again.');
         });
       }
     }
@@ -1067,14 +1417,9 @@
     function clearAllData() {
       if (userRole !== 'manager') return;
       
-      if (confirm(`Delete all ${defects.length} defects? This affects the entire team and cannot be undone.`)) {
+      if (confirm(`Delete all ${defects.length} defects?`)) {
         setSyncIndicator('syncing');
-        defectsRef.remove().then(() => {
-          alert('All defects cleared.');
-        }).catch(error => {
-          console.error('Error clearing defects:', error);
-          alert('Error clearing data. Please try again.');
-        });
+        defectsRef.remove();
       }
     }
 
@@ -1085,13 +1430,11 @@
       config.maxDrops = parseInt(document.getElementById('maxDrops').value);
       config.maxLevels = parseInt(document.getElementById('maxLevels').value);
       config.projectName = document.getElementById('projectNameInput').value;
+      config.numFaces = parseInt(document.getElementById('numFaces').value);
 
       setSyncIndicator('syncing');
       configRef.set(config).then(() => {
-        alert('Configuration saved! All team members will see the update.');
-      }).catch(error => {
-        console.error('Error saving config:', error);
-        alert('Error saving configuration. Please try again.');
+        alert('Configuration saved!');
       });
     }
 
@@ -1101,11 +1444,10 @@
       if (file) {
         const reader = new FileReader();
         reader.onloadend = function() {
-          const currentFace = document.getElementById('mapFaceSelect').value;
+          const currentFaceName = config.faceNames[currentFaceIndex];
           
-          // Save to config
           if (!config.facadePhotos) config.facadePhotos = {};
-          config.facadePhotos[currentFace] = reader.result;
+          config.facadePhotos[currentFaceName] = reader.result;
           
           if (userRole === 'manager') {
             configRef.update({ facadePhotos: config.facadePhotos }).then(() => {
@@ -1126,9 +1468,9 @@
     });
 
     function loadFacadePhoto() {
-      const currentFace = document.getElementById('mapFaceSelect').value;
-      if (config.facadePhotos && config.facadePhotos[currentFace]) {
-        facadePhoto = config.facadePhotos[currentFace];
+      const currentFaceName = config.faceNames[currentFaceIndex];
+      if (config.facadePhotos && config.facadePhotos[currentFaceName]) {
+        facadePhoto = config.facadePhotos[currentFaceName];
         document.getElementById('facadeUploadZone').classList.add('has-photo');
         document.getElementById('gridControls').style.display = 'flex';
       } else {
@@ -1138,7 +1480,7 @@
       }
     }
 
-    // Grid Adjustment Functions
+    // Grid Adjustment
     function adjustGrid(direction) {
       const step = 10;
       switch(direction) {
@@ -1159,11 +1501,12 @@
       renderLiveMap();
     }
 
-    // Live Map Rendering
+    // Live Map Rendering with non-overlapping pins
     function renderLiveMap() {
       const canvas = document.getElementById('liveMapCanvas');
       const ctx = canvas.getContext('2d');
-      const currentFace = document.getElementById('mapFaceSelect').value;
+      const currentFaceName = config.faceNames[currentFaceIndex];
+      showGrid = document.getElementById('gridToggle').checked;
       
       const canvasWidth = 800;
       const canvasHeight = 600;
@@ -1196,52 +1539,52 @@
         const cellWidth = gridWidth / config.maxDrops;
         const cellHeight = gridHeight / config.maxLevels;
         
-        // Grid outline
-        ctx.strokeStyle = facadePhoto ? '#f97316' : '#444';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(gridStartX, gridStartY, gridWidth, gridHeight);
-        
-        // Grid lines
-        ctx.strokeStyle = facadePhoto ? 'rgba(249, 115, 22, 0.5)' : '#333';
-        ctx.lineWidth = 1;
-        
-        for (let i = 1; i < config.maxLevels; i++) {
-          const y = gridStartY + (i * cellHeight);
-          ctx.beginPath();
-          ctx.moveTo(gridStartX, y);
-          ctx.lineTo(gridStartX + gridWidth, y);
-          ctx.stroke();
+        if (showGrid) {
+          // Grid outline
+          ctx.strokeStyle = facadePhoto ? '#f97316' : '#444';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(gridStartX, gridStartY, gridWidth, gridHeight);
+          
+          // Grid lines
+          ctx.strokeStyle = facadePhoto ? 'rgba(249, 115, 22, 0.5)' : '#333';
+          ctx.lineWidth = 1;
+          
+          for (let i = 1; i < config.maxLevels; i++) {
+            const y = gridStartY + (i * cellHeight);
+            ctx.beginPath();
+            ctx.moveTo(gridStartX, y);
+            ctx.lineTo(gridStartX + gridWidth, y);
+            ctx.stroke();
+          }
+          
+          for (let i = 1; i < config.maxDrops; i++) {
+            const x = gridStartX + (i * cellWidth);
+            ctx.beginPath();
+            ctx.moveTo(x, gridStartY);
+            ctx.lineTo(x, gridStartY + gridHeight);
+            ctx.stroke();
+          }
+          
+          // Labels
+          ctx.fillStyle = facadePhoto ? '#fff' : '#666';
+          ctx.font = '12px Arial';
+          ctx.textAlign = 'right';
+          
+          for (let i = 0; i < config.maxLevels; i++) {
+            const displayLevel = config.maxLevels - i;
+            const y = gridStartY + (i * cellHeight) + (cellHeight / 2) + 4;
+            ctx.fillText(displayLevel.toString(), gridStartX - 5, y);
+          }
+          
+          ctx.textAlign = 'center';
+          for (let i = 0; i < config.maxDrops; i++) {
+            const x = gridStartX + (i * cellWidth) + (cellWidth / 2);
+            ctx.fillText((i + 1).toString(), x, gridStartY - 5);
+          }
         }
         
-        for (let i = 1; i < config.maxDrops; i++) {
-          const x = gridStartX + (i * cellWidth);
-          ctx.beginPath();
-          ctx.moveTo(x, gridStartY);
-          ctx.lineTo(x, gridStartY + gridHeight);
-          ctx.stroke();
-        }
-        
-        // Labels
-        ctx.fillStyle = facadePhoto ? '#fff' : '#666';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'right';
-        
-        // Level labels (reversed - level 1 at bottom)
-        for (let i = 0; i < config.maxLevels; i++) {
-          const displayLevel = config.maxLevels - i;
-          const y = gridStartY + (i * cellHeight) + (cellHeight / 2) + 4;
-          ctx.fillText(displayLevel.toString(), gridStartX - 5, y);
-        }
-        
-        // Drop labels
-        ctx.textAlign = 'center';
-        for (let i = 0; i < config.maxDrops; i++) {
-          const x = gridStartX + (i * cellWidth) + (cellWidth / 2);
-          ctx.fillText((i + 1).toString(), x, gridStartY - 5);
-        }
-        
-        // Plot defects
-        const faceDefects = defects.filter(d => d.face === currentFace);
+        // Plot defects with smart positioning (no overlaps)
+        const faceDefects = defects.filter(d => d.face === currentFaceName);
         const defectsByLocation = {};
         
         faceDefects.forEach(d => {
@@ -1249,6 +1592,10 @@
           if (!defectsByLocation[key]) defectsByLocation[key] = [];
           defectsByLocation[key].push(d);
         });
+        
+        // Update face defect count
+        document.getElementById('faceDefectCount').textContent = faceDefects.length;
+        document.getElementById('currentFaceName').textContent = currentFaceName;
         
         Object.entries(defectsByLocation).forEach(([key, locationDefects]) => {
           const [drop, level] = key.split('-').map(Number);
@@ -1258,23 +1605,21 @@
           const baseX = gridStartX + ((drop - 1) * cellWidth);
           const baseY = gridStartY + ((config.maxLevels - level) * cellHeight);
           const count = locationDefects.length;
-          const markerSize = Math.min(15, cellWidth / (count + 1));
+          const markerSize = Math.min(15, Math.max(10, cellWidth / (count + 2)));
           
+          // Smart positioning - spiral pattern for multiple defects
           locationDefects.forEach((d, idx) => {
             let x, y;
             
             if (count === 1) {
               x = baseX + (cellWidth / 2);
               y = baseY + (cellHeight / 2);
-            } else if (count === 2) {
-              x = baseX + (cellWidth / 3) * (idx + 1);
-              y = baseY + (cellHeight / 2);
             } else {
-              const perRow = Math.ceil(Math.sqrt(count));
-              const col = idx % perRow;
-              const row = Math.floor(idx / perRow);
-              x = baseX + (cellWidth / (perRow + 1)) * (col + 1);
-              y = baseY + (cellHeight / (Math.ceil(count / perRow) + 1)) * (row + 1);
+              // Spiral pattern
+              const angle = (idx / count) * Math.PI * 2;
+              const radius = Math.min(cellWidth, cellHeight) * 0.3;
+              x = baseX + (cellWidth / 2) + Math.cos(angle) * radius;
+              y = baseY + (cellHeight / 2) + Math.sin(angle) * radius;
             }
             
             // Draw marker with category color
@@ -1302,35 +1647,6 @@
             ctx.textAlign = 'center';
             ctx.fillText(d.defectNumber.toString(), x, y + (markerSize / 3));
           });
-        });
-        
-        // Legend
-        ctx.textAlign = 'left';
-        ctx.fillStyle = facadePhoto ? '#fff' : '#999';
-        ctx.font = '11px Arial';
-        let legendY = canvasHeight - 50;
-        ctx.fillText(`${currentFace} Face - ${faceDefects.length} defects`, 10, legendY);
-        
-        // Category legend
-        const legendItems = [
-          { label: 'Crack', color: '#ef4444' },
-          { label: 'Spalling', color: '#f97316' },
-          { label: 'Water', color: '#3b82f6' },
-          { label: 'Corrosion', color: '#a855f7' },
-          { label: 'Other', color: '#6b7280' }
-        ];
-        
-        let legendX = 10;
-        legendY += 15;
-        legendItems.forEach(item => {
-          ctx.fillStyle = item.color;
-          ctx.beginPath();
-          ctx.arc(legendX + 5, legendY, 5, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.fillStyle = facadePhoto ? '#fff' : '#999';
-          ctx.fillText(item.label, legendX + 15, legendY + 4);
-          legendX += 90;
         });
       }
     }
@@ -1365,7 +1681,7 @@
         container.innerHTML = `
           <div class="empty-state">
             <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">📋</div>
-            <p>No defects logged yet. Start by capturing some photos!</p>
+            <p>No defects logged yet</p>
           </div>
         `;
       } else {
@@ -1383,14 +1699,14 @@
             <div class="defect-info">
               <div class="defect-number">
                 Defect #${d.defectNumber}
-                <span class="category-badge category-${d.category}">${categoryLabels[d.category] || d.category}</span>
+                <span class="category-badge category-${d.category}">${categoryLabels[d.category]}</span>
               </div>
               <div class="defect-meta">
                 <div><strong>Building:</strong> ${d.building}</div>
                 <div><strong>Face:</strong> ${d.face}</div>
                 <div><strong>Drop:</strong> ${d.drop}</div>
                 <div><strong>Level:</strong> ${d.level}</div>
-                <div><strong>Logged by:</strong> ${d.addedBy}</div>
+                <div><strong>By:</strong> ${d.addedBy}</div>
               </div>
               <div class="defect-desc">${d.description}</div>
             </div>
@@ -1414,20 +1730,33 @@
       document.getElementById('nextDefectNumber').textContent = defects.length + 1;
     }
 
-    // Export Functions
-    function exportWordDoc() {
+    // Export Functions - Professional Reports
+    async function exportWordDoc() {
       if (userRole !== 'manager') {
-        alert('Only managers can export reports.');
+        alert('Only managers can export');
         return;
       }
 
       if (defects.length === 0) {
-        alert('No defects to export yet!');
+        alert('No defects to export');
         return;
       }
 
+      // Calculate category counts
+      const categoryCounts = {
+        crack: 0,
+        spalling: 0,
+        water: 0,
+        corrosion: 0,
+        other: 0
+      };
+      
+      defects.forEach(d => {
+        categoryCounts[d.category]++;
+      });
+
       const categoryLabels = {
-        crack: 'Crack',
+        crack: 'Cracked Concrete',
         spalling: 'Spalling',
         water: 'Water Damage',
         corrosion: 'Corrosion',
@@ -1435,6 +1764,7 @@
       };
 
       try {
+        // Create summary page with chart
         let html = `
           <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
           <head>
@@ -1442,61 +1772,127 @@
             <title>Defect Report</title>
             <style>
               body { font-family: Arial, sans-serif; }
-              table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-              th, td { border: 1px solid #000; padding: 10px; vertical-align: top; }
-              th { background-color: #f97316; color: white; font-weight: bold; }
-              h1 { color: #1a1a1a; margin-bottom: 20px; }
-              .info { color: #666; margin: 5px 0; }
-              .defect-img { max-width: 250px; max-height: 250px; display: block; }
+              .cover-page { text-align: center; padding: 100px 50px; page-break-after: always; }
+              .cover-page h1 { font-size: 36px; color: #2c3e50; margin-bottom: 20px; }
+              .cover-page h2 { font-size: 24px; color: #7f8c8d; margin-bottom: 40px; }
+              .summary { padding: 40px; page-break-after: always; }
+              .summary h2 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-bottom: 30px; }
+              .stats { display: flex; justify-content: space-around; margin: 30px 0; }
+              .stat-box { text-align: center; padding: 20px; background: #ecf0f1; border-radius: 8px; }
+              .stat-number { font-size: 48px; font-weight: bold; color: #3498db; }
+              .stat-label { font-size: 14px; color: #7f8c8d; margin-top: 10px; }
+              .category-list { margin: 30px 0; }
+              .category-item { padding: 15px; margin: 10px 0; background: #f8f9fa; border-left: 4px solid #3498db; }
+              .defect-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+              .defect-table td { border: 1px solid #ddd; padding: 15px; vertical-align: top; }
+              .defect-header { background: #3498db; color: white; font-weight: bold; padding: 10px; }
+              .defect-photo { width: 100%; max-width: 400px; height: auto; }
+              .page-break { page-break-after: always; }
             </style>
           </head>
           <body>
-            <h1>Building Inspection Defect Report</h1>
-            <p class="info"><strong>Project:</strong> ${config.projectName || projectId}</p>
-            <p class="info"><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
-            <p class="info"><strong>Total Defects:</strong> ${defects.length}</p>
-            
-            <table>
-              <thead>
-                <tr>
-                  <th>Defect #</th>
-                  <th>Building</th>
-                  <th>Face</th>
-                  <th>Drop</th>
-                  <th>Level</th>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Logged By</th>
-                  <th>Photo</th>
-                </tr>
-              </thead>
-              <tbody>
+            <!-- Cover Page -->
+            <div class="cover-page">
+              <h1>Building Inspection Report</h1>
+              <h2>${config.projectName || projectId}</h2>
+              <p style="font-size: 18px; color: #95a5a6; margin-top: 60px;">
+                Generated: ${new Date().toLocaleDateString()}<br>
+                Total Defects Found: ${defects.length}<br>
+                Inspected by: ${config.createdBy}
+              </p>
+            </div>
+
+            <!-- Summary Page -->
+            <div class="summary">
+              <h2>Executive Summary</h2>
+              
+              <div class="stats">
+                <div class="stat-box">
+                  <div class="stat-number">${defects.length}</div>
+                  <div class="stat-label">Total Defects</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-number">${config.numFaces}</div>
+                  <div class="stat-label">Faces Inspected</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-number">${new Set(defects.map(d => d.addedBy)).size}</div>
+                  <div class="stat-label">Inspectors</div>
+                </div>
+              </div>
+
+              <h3 style="color: #2c3e50; margin-top: 40px;">Defects by Category</h3>
+              <div class="category-list">
+                ${Object.entries(categoryCounts).map(([key, count]) => `
+                  <div class="category-item">
+                    <strong>${categoryLabels[key]}:</strong> ${count} defect${count !== 1 ? 's' : ''}
+                    (${((count / defects.length) * 100).toFixed(1)}%)
+                  </div>
+                `).join('')}
+              </div>
+
+              <h3 style="color: #2c3e50; margin-top: 40px;">Defects by Face</h3>
+              <div class="category-list">
+                ${config.faceNames.map(faceName => {
+                  const faceCount = defects.filter(d => d.face === faceName).length;
+                  return `
+                    <div class="category-item">
+                      <strong>${faceName}:</strong> ${faceCount} defect${faceCount !== 1 ? 's' : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <!-- Defect Details -->
+            <h2 style="padding: 40px 40px 20px; color: #2c3e50; border-bottom: 3px solid #3498db;">Defect Details</h2>
         `;
         
-        defects.forEach((d) => {
+        // Add defects in 2-column table format like the example
+        for (let i = 0; i < defects.length; i += 2) {
+          const d1 = defects[i];
+          const d2 = defects[i + 1];
+          
           html += `
-            <tr>
-              <td style='text-align: center;'><strong>${d.defectNumber}</strong></td>
-              <td style='text-align: center;'>${d.building}</td>
-              <td style='text-align: center;'>${d.face}</td>
-              <td style='text-align: center;'>${d.drop}</td>
-              <td style='text-align: center;'>${d.level}</td>
-              <td style='text-align: center;'>${categoryLabels[d.category] || d.category}</td>
-              <td>${d.description}</td>
-              <td style='text-align: center;'>${d.addedBy}</td>
-              <td style='text-align: center;'>
-                <img src="${d.image}" class="defect-img" alt="Defect ${d.defectNumber} photo"/>
-              </td>
-            </tr>
+            <table class="defect-table" style="margin: 0 40px 20px;">
+              <tr>
+                ${d1 ? `<td style="width: 50%;">
+                  <img src="${d1.image}" class="defect-photo"/>
+                </td>` : '<td></td>'}
+                ${d2 ? `<td style="width: 50%;">
+                  <img src="${d2.image}" class="defect-photo"/>
+                </td>` : '<td></td>'}
+              </tr>
+              <tr>
+                ${d1 ? `<td>
+                  <strong>Defect: ${d1.defectNumber}</strong>
+                </td>` : '<td></td>'}
+                ${d2 ? `<td>
+                  <strong>Defect: ${d2.defectNumber}</strong>
+                </td>` : '<td></td>'}
+              </tr>
+              <tr>
+                ${d1 ? `<td>
+                  ${categoryLabels[d1.category]}<br>
+                  <em>${d1.description}</em><br>
+                  <small>Face: ${d1.face} | Drop: ${d1.drop} | Level: ${d1.level} | By: ${d1.addedBy}</small>
+                </td>` : '<td></td>'}
+                ${d2 ? `<td>
+                  ${categoryLabels[d2.category]}<br>
+                  <em>${d2.description}</em><br>
+                  <small>Face: ${d2.face} | Drop: ${d2.drop} | Level: ${d2.level} | By: ${d2.addedBy}</small>
+                </td>` : '<td></td>'}
+              </tr>
+            </table>
           `;
-        });
+          
+          // Page break every 3 rows (6 defects)
+          if ((i + 2) % 6 === 0 && i + 2 < defects.length) {
+            html += '<div class="page-break"></div>';
+          }
+        }
         
         html += `
-              </tbody>
-            </table>
-            <p style="margin-top: 30px; color: #666; font-size: 12px;">
-              <em>Report generated by Building Inspector Pro on ${new Date().toLocaleDateString()}</em>
-            </p>
           </body>
           </html>
         `;
@@ -1508,7 +1904,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Defect-Report-${projectId}-${new Date().toISOString().split('T')[0]}.doc`;
+        link.download = `Inspection-Report-${projectId}-${new Date().toISOString().split('T')[0]}.doc`;
         
         document.body.appendChild(link);
         link.click();
@@ -1518,22 +1914,22 @@
           URL.revokeObjectURL(url);
         }, 100);
         
-        alert('✅ Word report downloaded!');
+        alert('✅ Professional report downloaded!');
         
       } catch (error) {
         console.error('Export error:', error);
-        alert('❌ Error creating report: ' + error.message);
+        alert('❌ Error: ' + error.message);
       }
     }
 
-    function exportPDF() {
+    async function exportPDF() {
       if (userRole !== 'manager') {
-        alert('Only managers can export reports.');
+        alert('Only managers can export');
         return;
       }
 
       if (defects.length === 0) {
-        alert('No defects to export yet!');
+        alert('No defects to export');
         return;
       }
 
@@ -1541,83 +1937,104 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Title
-        doc.setFontSize(20);
-        doc.setTextColor(249, 115, 22);
-        doc.text('Building Inspection Defect Report', 20, 20);
+        // Cover Page
+        doc.setFontSize(28);
+        doc.setTextColor(44, 62, 80);
+        doc.text('Building Inspection Report', 105, 100, { align: 'center' });
         
-        // Info
+        doc.setFontSize(18);
+        doc.setTextColor(127, 140, 141);
+        doc.text(config.projectName || projectId, 105, 120, { align: 'center' });
+        
         doc.setFontSize(12);
-        doc.setTextColor(100);
-        doc.text(`Project: ${config.projectName || projectId}`, 20, 35);
-        doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 42);
-        doc.text(`Total Defects: ${defects.length}`, 20, 49);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 160, { align: 'center' });
+        doc.text(`Total Defects: ${defects.length}`, 105, 170, { align: 'center' });
+        doc.text(`Inspected by: ${config.createdBy}`, 105, 180, { align: 'center' });
         
-        let yPos = 60;
+        // Summary Page
+        doc.addPage();
+        doc.setFontSize(20);
+        doc.setTextColor(44, 62, 80);
+        doc.text('Executive Summary', 20, 20);
+        
+        // Category breakdown
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        let yPos = 40;
+        
+        const categoryCounts = { crack: 0, spalling: 0, water: 0, corrosion: 0, other: 0 };
+        defects.forEach(d => categoryCounts[d.category]++);
         
         const categoryLabels = {
-          crack: 'Crack',
+          crack: 'Cracked Concrete',
           spalling: 'Spalling',
           water: 'Water Damage',
           corrosion: 'Corrosion',
           other: 'Other'
         };
         
+        doc.text('Defects by Category:', 20, yPos);
+        yPos += 10;
+        
+        Object.entries(categoryCounts).forEach(([key, count]) => {
+          doc.text(`${categoryLabels[key]}: ${count} (${((count/defects.length)*100).toFixed(1)}%)`, 30, yPos);
+          yPos += 8;
+        });
+        
+        yPos += 10;
+        doc.text('Defects by Face:', 20, yPos);
+        yPos += 10;
+        
+        config.faceNames.forEach(faceName => {
+          const faceCount = defects.filter(d => d.face === faceName).length;
+          doc.text(`${faceName}: ${faceCount}`, 30, yPos);
+          yPos += 8;
+        });
+        
+        // Defect Details
         defects.forEach((d, idx) => {
-          if (yPos > 250) {
-            doc.addPage();
-            yPos = 20;
-          }
+          doc.addPage();
           
-          doc.setFontSize(14);
-          doc.setTextColor(0);
-          doc.text(`Defect #${d.defectNumber}`, 20, yPos);
+          doc.setFontSize(16);
+          doc.setTextColor(52, 152, 219);
+          doc.text(`Defect #${d.defectNumber}`, 20, 20);
           
-          doc.setFontSize(10);
-          doc.setTextColor(100);
-          yPos += 7;
-          doc.text(`Building: ${d.building} | Face: ${d.face} | Drop: ${d.drop} | Level: ${d.level}`, 20, yPos);
-          yPos += 7;
-          doc.text(`Category: ${categoryLabels[d.category]} | Logged by: ${d.addedBy}`, 20, yPos);
-          yPos += 7;
-          doc.text(`Description: ${d.description}`, 20, yPos, { maxWidth: 170 });
-          
-          yPos += 15;
+          doc.setFontSize(12);
+          doc.setTextColor(0, 0, 0);
+          doc.text(`Category: ${categoryLabels[d.category]}`, 20, 35);
+          doc.text(`Face: ${d.face} | Drop: ${d.drop} | Level: ${d.level}`, 20, 42);
+          doc.text(`Logged by: ${d.addedBy}`, 20, 49);
+          doc.text(`Description: ${d.description}`, 20, 56, { maxWidth: 170 });
           
           // Add image
           if (d.image) {
             try {
-              doc.addImage(d.image, 'JPEG', 20, yPos, 60, 45);
-              yPos += 50;
+              doc.addImage(d.image, 'JPEG', 20, 70, 170, 127);
             } catch (e) {
               console.error('Error adding image:', e);
             }
           }
-          
-          yPos += 5;
         });
         
-        doc.save(`Defect-Report-${projectId}-${new Date().toISOString().split('T')[0]}.pdf`);
+        doc.save(`Inspection-Report-${projectId}-${new Date().toISOString().split('T')[0]}.pdf`);
         alert('✅ PDF report downloaded!');
         
       } catch (error) {
-        console.error('PDF export error:', error);
-        alert('❌ Error creating PDF: ' + error.message);
+        console.error('PDF error:', error);
+        alert('❌ Error: ' + error.message);
       }
     }
 
     function exportDefectMaps() {
       if (userRole !== 'manager') return;
-
       if (defects.length === 0) {
-        alert('No defects to map yet!');
+        alert('No defects to map');
         return;
       }
 
-      const faces = ['North', 'South', 'East', 'West'];
       let downloadCount = 0;
       
-      faces.forEach((face) => {
+      config.faceNames.forEach((faceName, faceIdx) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
@@ -1633,8 +2050,8 @@
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Check if there's a facade photo for this face
-        if (config.facadePhotos && config.facadePhotos[face]) {
+        // Check for facade photo
+        if (config.facadePhotos && config.facadePhotos[faceName]) {
           const img = new Image();
           img.onload = function() {
             ctx.save();
@@ -1643,7 +2060,7 @@
             ctx.restore();
             drawFaceMap();
           };
-          img.src = config.facadePhotos[face];
+          img.src = config.facadePhotos[faceName];
         } else {
           drawFaceMap();
         }
@@ -1651,17 +2068,18 @@
         function drawFaceMap() {
           ctx.fillStyle = '#f97316';
           ctx.font = 'bold 36px Arial';
-          ctx.fillText(`${face} Face - Defect Map`, margin, 60);
+          ctx.fillText(`${faceName} - Defect Map`, margin, 60);
           
           ctx.fillStyle = '#999';
           ctx.font = '16px Arial';
-          const faceDefects = defects.filter(d => d.face === face);
+          const faceDefects = defects.filter(d => d.face === faceName);
           ctx.fillText(`Project: ${config.projectName || projectId}`, margin, 95);
           ctx.fillText(`Defects: ${faceDefects.length}`, margin, 120);
           ctx.fillText(`Generated: ${new Date().toLocaleString()}`, margin, 145);
           
           const gridStartY = 180;
           
+          // Grid
           ctx.strokeStyle = '#444';
           ctx.lineWidth = 3;
           ctx.strokeRect(margin, gridStartY, gridWidth, gridHeight);
@@ -1685,6 +2103,7 @@
             ctx.stroke();
           }
           
+          // Labels
           ctx.fillStyle = '#666';
           ctx.font = '12px Arial';
           ctx.textAlign = 'right';
@@ -1701,6 +2120,7 @@
             ctx.fillText((i + 1).toString(), x, gridStartY - 10);
           }
           
+          // Plot defects with spiral pattern (no overlaps)
           const defectsByLocation = {};
           faceDefects.forEach(d => {
             const key = `${d.drop}-${d.level}`;
@@ -1724,7 +2144,7 @@
             const baseX = margin + ((drop - 1) * cellWidth);
             const baseY = gridStartY + ((config.maxLevels - level) * cellHeight);
             const count = locationDefects.length;
-            const markerSize = Math.min(12, cellWidth / (count + 1));
+            const markerSize = Math.min(15, cellWidth / (count + 2));
             
             locationDefects.forEach((d, idx) => {
               let x, y;
@@ -1732,15 +2152,12 @@
               if (count === 1) {
                 x = baseX + (cellWidth / 2);
                 y = baseY + (cellHeight / 2);
-              } else if (count === 2) {
-                x = baseX + (cellWidth / 3) * (idx + 1);
-                y = baseY + (cellHeight / 2);
               } else {
-                const perRow = Math.ceil(Math.sqrt(count));
-                const col = idx % perRow;
-                const row = Math.floor(idx / perRow);
-                x = baseX + (cellWidth / (perRow + 1)) * (col + 1);
-                y = baseY + (cellHeight / (Math.ceil(count / perRow) + 1)) * (row + 1);
+                // Spiral pattern
+                const angle = (idx / count) * Math.PI * 2;
+                const radius = Math.min(cellWidth, cellHeight) * 0.3;
+                x = baseX + (cellWidth / 2) + Math.cos(angle) * radius;
+                y = baseY + (cellHeight / 2) + Math.sin(angle) * radius;
               }
               
               ctx.fillStyle = categoryColors[d.category] || '#f97316';
@@ -1748,8 +2165,12 @@
               ctx.arc(x, y, markerSize, 0, Math.PI * 2);
               ctx.fill();
               
+              ctx.strokeStyle = '#fff';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              
               ctx.fillStyle = '#fff';
-              ctx.font = `bold ${Math.max(8, markerSize)}px Arial`;
+              ctx.font = `bold ${Math.max(10, markerSize)}px Arial`;
               ctx.textAlign = 'center';
               ctx.fillText(d.defectNumber.toString(), x, y + (markerSize / 3));
             });
@@ -1760,22 +2181,22 @@
           ctx.font = '14px Arial';
           const legendY = gridStartY + gridHeight + 40;
           ctx.fillText('🟠 Markers show defect locations (color = category)', margin, legendY);
-          ctx.fillText('Numbers = defect IDs (see report for details)', margin, legendY + 25);
+          ctx.fillText('Multiple markers = multiple defects at that location', margin, legendY + 25);
           
           canvas.toBlob((blob) => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `defect-map-${face}-${projectId}-${new Date().toISOString().split('T')[0]}.png`;
+            a.download = `defect-map-${faceName.replace(/\s+/g, '-')}-${projectId}-${new Date().toISOString().split('T')[0]}.png`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
             downloadCount++;
-            if (downloadCount === faces.length) {
+            if (downloadCount === config.faceNames.length) {
               setTimeout(() => {
-                alert('✅ Generated 4 defect maps (one per face)!');
+                alert(`✅ Generated ${config.faceNames.length} defect maps!`);
               }, 500);
             }
           }, 'image/png');
