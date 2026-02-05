@@ -767,24 +767,91 @@
           const[dr,lv]=k.split('-').map(Number);
           if(dr>fc.maxDrops||lv>fc.maxLevels)return;
           const bx=gx+((dr-1)*cw), by=gy+((fc.maxLevels-lv)*ch), cnt=lds.length;
-          const pad=4, minMS=12, maxMS=20;
-          const cols=Math.ceil(Math.sqrt(cnt)), rows=Math.ceil(cnt/cols);
-          const aw=(cw*0.9)-(pad*(cols-1)), ah=(ch*0.9)-(pad*(rows-1));
-          const ms=Math.min(maxMS,Math.max(minMS,aw/cols,ah/rows));
-          const tw=(ms*cols)+(pad*(cols-1)), th=(ms*rows)+(pad*(rows-1));
-          const sx=bx+(cw-tw)/2, sy=by+(ch-th)/2;
-          lds.forEach((d,i)=>{
-            const col=i%cols, row=Math.floor(i/cols);
-            const x=sx+(col*(ms+pad))+(ms/2), y=sy+(row*(ms+pad))+(ms/2);
-            ctx.fillStyle=CAT_COLORS[d.category]||'#f97316';
-            ctx.beginPath();ctx.arc(x,y,ms/2,0,Math.PI*2);ctx.fill();
-            ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
-            ctx.fillStyle='#fff';
-            ctx.font=`bold ${Math.max(8,ms*0.6)}px Arial`;
-            ctx.textAlign='center';ctx.textBaseline='middle';
-            ctx.fillText(d.defectNumber.toString(),x,y);
-          });
+          
+          // CRITICAL: Perfect spacing algorithm for visibility
+          const markerSize = 14; // Fixed size for consistency
+          const minSpacing = markerSize + 4; // Minimum space between centers
+          
+          if (cnt === 1) {
+            // Single defect - center it
+            const x = bx + (cw/2);
+            const y = by + (ch/2);
+            drawMarker(lds[0], x, y, markerSize);
+          } else if (cnt === 2) {
+            // Two defects - side by side
+            const spacing = Math.min(cw * 0.3, minSpacing);
+            const x1 = bx + (cw/2) - (spacing/2);
+            const x2 = bx + (cw/2) + (spacing/2);
+            const y = by + (ch/2);
+            drawMarker(lds[0], x1, y, markerSize);
+            drawMarker(lds[1], x2, y, markerSize);
+          } else if (cnt === 3) {
+            // Three defects - triangle
+            const spacing = Math.min(cw * 0.25, minSpacing);
+            const x1 = bx + (cw/2);
+            const y1 = by + (ch/2) - (spacing * 0.6);
+            const x2 = bx + (cw/2) - (spacing/2);
+            const y2 = by + (ch/2) + (spacing * 0.4);
+            const x3 = bx + (cw/2) + (spacing/2);
+            const y3 = by + (ch/2) + (spacing * 0.4);
+            drawMarker(lds[0], x1, y1, markerSize);
+            drawMarker(lds[1], x2, y2, markerSize);
+            drawMarker(lds[2], x3, y3, markerSize);
+          } else if (cnt === 4) {
+            // Four defects - 2x2 grid
+            const spacing = Math.min(cw * 0.3, minSpacing);
+            const positions = [
+              [bx + (cw/2) - (spacing/2), by + (ch/2) - (spacing/2)],
+              [bx + (cw/2) + (spacing/2), by + (ch/2) - (spacing/2)],
+              [bx + (cw/2) - (spacing/2), by + (ch/2) + (spacing/2)],
+              [bx + (cw/2) + (spacing/2), by + (ch/2) + (spacing/2)]
+            ];
+            lds.forEach((d, i) => drawMarker(d, positions[i][0], positions[i][1], markerSize));
+          } else {
+            // 5+ defects - use tight grid with guaranteed spacing
+            const cols = Math.ceil(Math.sqrt(cnt));
+            const rows = Math.ceil(cnt / cols);
+            
+            // Calculate spacing to fit in cell
+            const maxWidth = cw * 0.85;
+            const maxHeight = ch * 0.85;
+            const spacingX = Math.min(minSpacing, maxWidth / cols);
+            const spacingY = Math.min(minSpacing, maxHeight / rows);
+            
+            const totalWidth = (cols - 1) * spacingX;
+            const totalHeight = (rows - 1) * spacingY;
+            const startX = bx + (cw - totalWidth) / 2;
+            const startY = by + (ch - totalHeight) / 2;
+            
+            lds.forEach((d, i) => {
+              const col = i % cols;
+              const row = Math.floor(i / cols);
+              const x = startX + (col * spacingX);
+              const y = startY + (row * spacingY);
+              drawMarker(d, x, y, Math.max(10, markerSize - (cnt > 6 ? 2 : 0)));
+            });
+          }
         });
+        
+        function drawMarker(d, x, y, size) {
+          // Draw circle with category color
+          ctx.fillStyle = CAT_COLORS[d.category] || '#f97316';
+          ctx.beginPath();
+          ctx.arc(x, y, size/2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // White border
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          
+          // Defect number - ALWAYS VISIBLE
+          ctx.fillStyle = '#fff';
+          ctx.font = `bold ${Math.max(8, size * 0.6)}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(d.defectNumber.toString(), x, y);
+        }
       }
     }
 
