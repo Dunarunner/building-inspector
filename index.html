@@ -4,230 +4,2489 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Building Inspector Pro</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { min-height: 100vh; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #fff; font-family: 'Courier New', monospace; padding: 20px; }
-    .header { background: linear-gradient(90deg, #f97316 0%, #ea580c 100%); padding: 24px; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3); }
-    .header h1 { margin: 0; font-size: 28px; font-weight: bold; }
-    .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 14px; }
-    .role-badge { display: inline-block; padding: 4px 12px; background: rgba(255,255,255,0.2); border-radius: 12px; font-size: 12px; margin-left: 12px; }
-    .nav { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-    .nav-btn { padding: 12px 24px; background: #333; border: none; border-radius: 6px; color: #fff; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.2s; font-family: inherit; }
-    .nav-btn.active { background: #f97316; }
-    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .card { background: #2d2d2d; border-radius: 8px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); margin-bottom: 16px; }
-    .form-grid { display: grid; gap: 16px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .form-group label { display: block; margin-bottom: 8px; font-size: 12px; color: #999; text-transform: uppercase; }
-    .form-control { width: 100%; padding: 12px; background: #1a1a1a; border: 2px solid #444; border-radius: 6px; color: #fff; font-size: 16px; font-family: inherit; }
-    textarea.form-control { min-height: 100px; resize: vertical; }
-    .btn { padding: 16px; background: linear-gradient(90deg, #f97316 0%, #ea580c 100%); border: none; border-radius: 6px; color: #fff; cursor: pointer; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); transition: transform 0.2s; font-family: inherit; width: 100%; }
-    .btn:active { transform: scale(0.98); }
-    .btn-sm { padding: 12px 24px; font-size: 14px; width: auto; }
-    .btn-green { background: #10b981; }
-    .btn-blue { background: #3b82f6; }
-    .btn-red { background: #ef4444; }
-    .btn-purple { background: #8b5cf6; }
-    .defect-item { background: #2d2d2d; border-radius: 8px; padding: 16px; display: flex; gap: 16px; align-items: flex-start; margin-bottom: 12px; }
-    .defect-img { width: 120px; height: 120px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid #444; }
-    .defect-info { flex: 1; }
-    .defect-number { font-size: 18px; font-weight: bold; color: #f97316; margin-bottom: 8px; }
-    .defect-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; font-size: 13px; color: #999; margin-bottom: 8px; }
-    .category-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-top: 4px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+    }
+    
+    .header {
+      background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: -0.5px;
+    }
+    
+    .header p {
+      margin: 8px 0 0 0;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      font-size: 12px;
+      margin-left: 12px;
+    }
+    
+    .nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .nav-btn {
+      padding: 12px 24px;
+      background: #333;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    .nav-btn.active {
+      background: #f97316;
+    }
+    
+    .nav-btn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    .card {
+      background: #2d2d2d;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      margin-bottom: 16px;
+    }
+    
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      background: #1a1a1a;
+      border: 2px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .btn {
+      padding: 16px;
+      background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+      transition: transform 0.2s;
+      font-family: inherit;
+      width: 100%;
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-sm {
+      padding: 12px 24px;
+      font-size: 14px;
+      width: auto;
+    }
+    
+    .btn-green {
+      background: #10b981;
+    }
+    
+    .btn-blue {
+      background: #3b82f6;
+    }
+    
+    .btn-red {
+      background: #ef4444;
+    }
+
+    .btn-purple {
+      background: #8b5cf6;
+    }
+    
+    .btn:disabled {
+      background: #444;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    .defect-list {
+      display: grid;
+      gap: 12px;
+    }
+    
+    .defect-item {
+      background: #2d2d2d;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    
+    .defect-img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid #444;
+    }
+    
+    .defect-info {
+      flex: 1;
+    }
+    
+    .defect-number {
+      font-size: 18px;
+      font-weight: bold;
+      color: #f97316;
+      margin-bottom: 8px;
+    }
+    
+    .defect-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    
+    .defect-desc {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .category-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
     .category-crack { background: #ef4444; }
     .category-spalling { background: #f97316; }
     .category-water { background: #3b82f6; }
     .category-corrosion { background: #a855f7; }
     .category-other { background: #6b7280; }
-    .delete-btn { padding: 8px; background: transparent; border: none; color: #ef4444; cursor: pointer; border-radius: 4px; font-size: 20px; }
-    .empty-state { background: #2d2d2d; border-radius: 8px; padding: 48px; text-align: center; color: #666; }
-    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-    .modal.active { display: flex; }
-    .modal img { max-width: 100%; max-height: 100%; border-radius: 8px; }
-    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .toolbar-right { margin-left: auto; }
-    .hidden { display: none; }
-    .setup-screen { max-width: 600px; margin: 50px auto; }
-    .setup-screen h2 { color: #f97316; margin-bottom: 24px; font-size: 32px; text-align: center; }
-    .role-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
-    .role-card { background: #2d2d2d; padding: 32px 24px; border-radius: 12px; cursor: pointer; transition: all 0.3s; border: 3px solid transparent; width: 100%; text-align: left; font-family: inherit; color: inherit; }
-    .role-card:hover { border-color: #f97316; transform: translateY(-4px); }
-    .role-card h3 { font-size: 24px; margin-bottom: 12px; color: #f97316; pointer-events: none; }
-    .role-card ul { color: #999; font-size: 14px; line-height: 1.8; list-style-position: inside; pointer-events: none; }
-    .sync-indicator { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(16, 185, 129, 0.2); border-radius: 12px; font-size: 12px; color: #10b981; }
-    .sync-indicator.offline { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-    .sync-dot { width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .loading { text-align: center; padding: 48px; color: #999; }
-    .spinner { border: 3px solid #333; border-top-color: #f97316; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .map-canvas { display: block; width: 100%; height: auto; }
-    .facade-photo-upload { margin-bottom: 16px; padding: 16px; background: rgba(249, 115, 22, 0.1); border: 2px dashed #f97316; border-radius: 8px; text-align: center; cursor: pointer; width: 100%; font-family: inherit; color: inherit; }
-    .facade-photo-upload.has-photo { border-style: solid; background: rgba(16, 185, 129, 0.1); border-color: #10b981; }
-    .facade-photo-upload p { pointer-events: none; }
-    .grid-controls { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
-    .grid-controls button { padding: 8px 16px; background: #333; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 12px; font-family: inherit; }
-    .face-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .face-tab { padding: 8px 16px; background: #333; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 12px; font-family: inherit; }
-    .face-tab.active { background: #f97316; }
-    .project-list { display: grid; gap: 12px; max-height: 400px; overflow-y: auto; }
-    .project-item { background: #333; padding: 16px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
-    .project-item:hover { border-color: #f97316; }
-    .project-item h4 { color: #f97316; margin-bottom: 8px; }
-    .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; margin-left: 12px; }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
-    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-    input:checked + .toggle-slider { background-color: #f97316; }
-    input:checked + .toggle-slider:before { transform: translateX(26px); }
-    .face-config-item { background: #333; padding: 16px; border-radius: 8px; margin-bottom: 12px; }
-    @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } .defect-item { flex-direction: column; } .defect-img { width: 100%; height: 200px; } .role-cards { grid-template-columns: 1fr; } }
+    
+    .delete-btn {
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 20px;
+    }
+    
+    .delete-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .empty-state {
+      background: #2d2d2d;
+      border-radius: 8px;
+      padding: 48px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+    }
+    
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .toolbar-right {
+      margin-left: auto;
+    }
+    
+    .hidden {
+      display: none;
+    }
+
+    .setup-screen {
+      max-width: 600px;
+      margin: 50px auto;
+    }
+
+    .setup-screen h2 {
+      color: #f97316;
+      margin-bottom: 24px;
+      font-size: 32px;
+      text-align: center;
+    }
+
+    .setup-screen p {
+      color: #999;
+      margin-bottom: 32px;
+      font-size: 16px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .role-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .role-card {
+      background: #2d2d2d;
+      padding: 32px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 3px solid transparent;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: rgba(249, 115, 22, 0.3);
+    }
+
+    .role-card:hover, .role-card:active {
+      border-color: #f97316;
+      transform: translateY(-4px);
+    }
+
+    .role-card h3 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #f97316;
+      pointer-events: none;
+    }
+
+    .role-card ul {
+      text-align: left;
+      color: #999;
+      font-size: 14px;
+      line-height: 1.8;
+      list-style-position: inside;
+      pointer-events: none;
+    }
+
+    .sync-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(16, 185, 129, 0.2);
+      border-radius: 12px;
+      font-size: 12px;
+      color: #10b981;
+    }
+
+    .sync-indicator.syncing {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+
+    .sync-indicator.offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      background: currentColor;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .info-box {
+      background: rgba(59, 130, 246, 0.1);
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      color: #93c5fd;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 48px;
+      color: #999;
+    }
+
+    .spinner {
+      border: 3px solid #333;
+      border-top-color: #f97316;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .map-preview {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .map-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .facade-photo-upload {
+      margin-bottom: 16px;
+      padding: 16px;
+      background: rgba(249, 115, 22, 0.1);
+      border: 2px dashed #f97316;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      font-family: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: rgba(249, 115, 22, 0.3);
+    }
+
+    .facade-photo-upload:hover, .facade-photo-upload:active {
+      background: rgba(249, 115, 22, 0.2);
+    }
+
+    .facade-photo-upload.has-photo {
+      border-style: solid;
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+    }
+
+    .facade-photo-upload p {
+      pointer-events: none;
+    }
+
+    .grid-controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .grid-controls button {
+      padding: 8px 16px;
+      background: #333;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .grid-controls button:hover {
+      background: #444;
+    }
+
+    .grid-controls button.active {
+      background: #f97316;
+    }
+
+    .face-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .face-tab {
+      padding: 8px 16px;
+      background: #333;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .face-tab.active {
+      background: #f97316;
+    }
+
+    .face-tab:hover {
+      background: #444;
+    }
+
+    .face-tab.active:hover {
+      background: #f97316;
+    }
+
+    .add-face-btn {
+      padding: 8px 16px;
+      background: #10b981;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .project-list {
+      display: grid;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .project-item {
+      background: #333;
+      padding: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .project-item:hover {
+      border-color: #f97316;
+      background: #3d3d3d;
+    }
+
+    .project-item h4 {
+      color: #f97316;
+      margin-bottom: 8px;
+    }
+
+    .project-item p {
+      color: #999;
+      font-size: 13px;
+      margin: 4px 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+      margin-left: 12px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #333;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #f97316;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .defect-item {
+        flex-direction: column;
+      }
+      
+      .defect-img {
+        width: 100%;
+        height: 200px;
+      }
+
+      .role-cards {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Setup Screen -->
   <div id="setupScreen" class="setup-screen">
     <div class="card">
       <h2>🏗️ Building Inspector Pro</h2>
-      <div class="form-group" style="margin-bottom:24px"><label>Your Name</label><input type="text" id="userName" class="form-control"></div>
-      <div class="form-group" style="margin-bottom:24px"><label>Project ID</label><input type="text" id="projectId" class="form-control"></div>
+      <p>Cloud-synced collaboration with live defect mapping</p>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label>Your Name</label>
+        <input type="text" id="userName" class="form-control" placeholder="Enter your name (e.g., John Smith)">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label>Project/Inspection ID</label>
+        <input type="text" id="projectId" class="form-control" placeholder="Enter project ID">
+        <p style="color: #666; font-size: 12px; margin-top: 8px;" id="projectHelp">
+          All team members must use the same Project ID
+        </p>
+      </div>
+
       <div class="role-cards">
-        <button class="role-card" type="button" id="workerButton"><h3>🪂 Worker</h3><ul><li>Log defects</li><li>View maps</li></ul></button>
-        <button class="role-card" type="button" id="managerButton"><h3>👔 Manager</h3><ul><li>All worker features</li><li>Create projects</li><li>Export reports</li><li>Password: 1234</li></ul></button>
+        <button class="role-card" type="button" id="workerButton">
+          <h3>🪂 Worker</h3>
+          <ul>
+            <li>Log defects</li>
+            <li>Capture photos</li>
+            <li>View live map</li>
+            <li>Add categories</li>
+          </ul>
+        </button>
+
+        <button class="role-card" type="button" id="managerButton">
+          <h3>👔 Manager</h3>
+          <ul>
+            <li>All worker features</li>
+            <li>Create/view projects</li>
+            <li>Configure settings</li>
+            <li>Export reports</li>
+            <li>Password: 1234</li>
+          </ul>
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Manager Projects List -->
   <div id="projectsScreen" class="setup-screen hidden">
     <div class="card">
-      <h2>📋 Projects</h2>
-      <button class="btn" onclick="showCreateProject()" style="margin-bottom:24px">➕ Create New</button>
+      <h2>📋 Your Projects</h2>
+      <p style="margin-bottom: 24px;">Select an existing project or create a new one</p>
+
+      <button class="btn" onclick="showCreateProject()" style="margin-bottom: 24px;">
+        ➕ Create New Project
+      </button>
+
       <div id="projectsList" class="project-list"></div>
-      <button class="btn btn-red" onclick="backToSetup()" style="margin-top:24px">← Back</button>
+
+      <button class="btn btn-red" onclick="backToSetup()" style="margin-top: 24px;">
+        ← Back
+      </button>
     </div>
   </div>
+
+  <!-- Create Project Screen -->
   <div id="createProjectScreen" class="setup-screen hidden">
     <div class="card">
-      <h2>➕ Create Project</h2>
-      <div class="form-group" style="margin-bottom:16px"><label>Project ID</label><input type="text" id="newProjectId" class="form-control"></div>
-      <div class="form-group" style="margin-bottom:16px"><label>Project Name</label><input type="text" id="newProjectName" class="form-control"></div>
-      <div class="form-group" style="margin-bottom:24px"><label>Number of Faces</label><input type="number" id="newProjectFaces" class="form-control" value="4" min="1" max="20"></div>
-      <button class="btn" onclick="createNewProject()">Create</button>
-      <button class="btn btn-red" onclick="backToProjects()" style="margin-top:16px">← Back</button>
+      <h2>➕ Create New Project</h2>
+      
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label>Project ID</label>
+        <input type="text" id="newProjectId" class="form-control" placeholder="e.g., TOWER-A-2024">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label>Project Name</label>
+        <input type="text" id="newProjectName" class="form-control" placeholder="e.g., Harbor Tower Inspection">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label>Number of Faces</label>
+        <input type="number" id="newProjectFaces" class="form-control" value="4" min="1" max="20">
+      </div>
+
+      <button class="btn" onclick="createNewProject()">
+        Create Project
+      </button>
+
+      <button class="btn btn-red" onclick="backToProjects()" style="margin-top: 16px;">
+        ← Back
+      </button>
     </div>
   </div>
-  <div id="loadingScreen" class="loading hidden"><div class="spinner"></div><p>Connecting...</p></div>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading hidden">
+    <div class="spinner"></div>
+    <p>Connecting to database...</p>
+  </div>
+
+  <!-- Main App -->
   <div id="mainApp" class="hidden">
     <div class="header">
-      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div><h1>Building Inspector Pro <span class="role-badge" id="roleBadge"></span></h1>
-        <p><span id="userNameDisplay"></span> • <span id="projectName"></span> • Defects: <span id="defectCount">0</span> • <span id="syncIndicator" class="sync-indicator"><span class="sync-dot"></span><span id="syncText">Connected</span></span></p></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1>
+            Building Inspector Pro
+            <span class="role-badge" id="roleBadge"></span>
+          </h1>
+          <p>
+            <span id="userNameDisplay"></span> • 
+            Project: <span id="projectName"></span> • 
+            Defects: <span id="defectCount">0</span> • 
+            <span id="syncIndicator" class="sync-indicator">
+              <span class="sync-dot"></span>
+              <span id="syncText">Connected</span>
+            </span>
+          </p>
+        </div>
         <button class="btn btn-sm btn-red" onclick="exitSession()">Exit</button>
       </div>
     </div>
+
     <div class="nav">
       <button class="nav-btn active" onclick="showView('entry')">📸 Log Defect</button>
       <button class="nav-btn" onclick="showView('list')">📋 View All</button>
       <button class="nav-btn" onclick="showView('liveMap')">🗺️ Live Map</button>
-      <button class="nav-btn" id="configBtn" onclick="showView('config')" style="display:none">⚙️ Settings</button>
+      <button class="nav-btn" id="configBtn" onclick="showView('config')" style="display: none;">⚙️ Settings</button>
     </div>
+
+    <!-- Entry View -->
     <div id="entryView">
       <div class="card">
-        <h2 style="margin:0 0 24px;font-size:20px;color:#f97316">Defect #<span id="nextDefectNumber">1</span></h2>
+        <h2 style="margin: 0 0 24px 0; font-size: 20px; color: #f97316;">
+          Defect #<span id="nextDefectNumber">1</span>
+        </h2>
+
         <div class="form-grid">
-          <div class="form-row"><div class="form-group"><label>Building</label><input type="text" id="building" class="form-control" value="1"></div><div class="form-group"><label>Face</label><select id="face" class="form-control"></select></div></div>
-          <div class="form-row"><div class="form-group"><label>Drop</label><input type="text" id="drop" class="form-control" value="1"></div><div class="form-group"><label>Level</label><input type="text" id="level" class="form-control" value="1"></div></div>
-          <div class="form-group"><label>Category</label><select id="category" class="form-control"><option value="crack">Crack</option><option value="spalling">Spalling</option><option value="water">Water Damage</option><option value="corrosion">Corrosion</option><option value="other">Other</option></select></div>
-          <div class="form-group"><label>Description</label><textarea id="description" class="form-control"></textarea></div>
-          <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
-          <button class="btn" onclick="document.getElementById('photoInput').click()">📷 Capture Photo</button>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Building</label>
+              <input type="text" id="building" class="form-control" value="1">
+            </div>
+            <div class="form-group">
+              <label>Face</label>
+              <select id="face" class="form-control">
+                <!-- Faces populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Drop</label>
+              <input type="text" id="drop" class="form-control" value="1">
+            </div>
+            <div class="form-group">
+              <label>Level</label>
+              <input type="text" id="level" class="form-control" value="1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select id="category" class="form-control">
+              <option value="crack">Crack</option>
+              <option value="spalling">Spalling</option>
+              <option value="water">Water Damage</option>
+              <option value="corrosion">Corrosion</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="description" class="form-control" placeholder="Describe the defect..."></textarea>
+          </div>
+
+          <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
+          <button class="btn" onclick="document.getElementById('photoInput').click()">
+            📷 Capture Photo & Log Defect
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- List View -->
     <div id="listView" class="hidden">
-      <div class="card toolbar" id="managerToolbar" style="display:none">
-        <button class="btn btn-sm btn-green" onclick="exportWordDoc()">⬇️ Word</button>
-        <button class="btn btn-sm btn-blue" onclick="exportPDF()">📄 PDF</button>
-        <button class="btn btn-sm btn-purple" onclick="exportDefectMapsPDF()">📍 PDF Maps</button>
-        <button class="btn btn-sm btn-red toolbar-right" onclick="clearAllData()">🗑️ Clear</button>
+      <div class="card toolbar" id="managerToolbar" style="display: none;">
+        <button class="btn btn-sm btn-green" onclick="exportWordDoc()">
+          ⬇️ Word Report
+        </button>
+        <button class="btn btn-sm btn-blue" onclick="exportPDF()">
+          📄 PDF Report
+        </button>
+        <button class="btn btn-sm btn-purple" onclick="exportDefectMaps()">
+          📍 Defect Maps
+        </button>
+        <button class="btn btn-sm btn-red toolbar-right" onclick="clearAllData()">
+          🗑️ Clear All
+        </button>
       </div>
+
       <div id="defectListContainer"></div>
     </div>
+
+    <!-- Live Map View -->
     <div id="liveMapView" class="hidden">
       <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap"><h2 style="margin:0;color:#f97316">Live Map</h2><div style="display:flex;align-items:center;gap:8px"><span style="font-size:14px">Grid</span><label class="toggle-switch"><input type="checkbox" id="gridToggle" checked onchange="renderLiveMap()"><span class="toggle-slider"></span></label></div></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+          <h2 style="margin: 0; color: #f97316;">Live Defect Map</h2>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 14px;">Grid</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="gridToggle" checked onchange="renderLiveMap()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        
         <div class="face-tabs" id="faceTabs"></div>
-        <button class="facade-photo-upload" id="facadeUploadZone" onclick="document.getElementById('facadePhotoInput').click()" type="button"><p style="margin:0;color:#f97316;font-weight:bold">📸 Upload Facade Photo</p></button>
-        <input type="file" id="facadePhotoInput" accept="image/*" style="display:none">
-        <div style="text-align:center;margin-bottom:12px"><span style="color:#999;font-size:14px"><span id="currentFaceName">Face 1</span> Defects: <span id="faceDefectCount">0</span></span></div>
-        <canvas id="liveMapCanvas" class="map-canvas"></canvas>
-        <div class="grid-controls" id="gridControls" style="display:none">
-          <button onclick="adjustGrid('left')">← Left</button><button onclick="adjustGrid('right')">Right →</button><button onclick="adjustGrid('up')">↑ Up</button><button onclick="adjustGrid('down')">↓ Down</button>
-          <button onclick="adjustGrid('wider')">⬌ Wider</button><button onclick="adjustGrid('narrower')">⬍ Narrower</button><button onclick="adjustGrid('taller')">⬆ Taller</button><button onclick="adjustGrid('shorter')">⬇ Shorter</button>
-          <button onclick="resetGrid()" style="background:#ef4444">↺ Reset</button>
+
+        <button class="facade-photo-upload" id="facadeUploadZone" onclick="document.getElementById('facadePhotoInput').click()" type="button">
+          <p style="margin: 0; color: #f97316; font-weight: bold;">📸 Click to Upload Facade Photo (Optional)</p>
+          <p style="margin: 8px 0 0 0; font-size: 12px; color: #999;">Adds building photo behind the grid for precise defect mapping</p>
+        </button>
+        <input type="file" id="facadePhotoInput" accept="image/*" style="display: none;">
+
+        <div style="text-align: center; margin-bottom: 12px;">
+          <span style="color: #999; font-size: 14px;">
+            <span id="currentFaceName">Face 1</span> Defects: <span id="faceDefectCount">0</span>
+          </span>
+        </div>
+
+        <div class="map-preview">
+          <div class="map-canvas-container">
+            <canvas id="liveMapCanvas" class="map-canvas"></canvas>
+          </div>
+          <div class="grid-controls" id="gridControls" style="display: none;">
+            <button onclick="adjustGrid('left')">← Left</button>
+            <button onclick="adjustGrid('right')">Right →</button>
+            <button onclick="adjustGrid('up')">↑ Up</button>
+            <button onclick="adjustGrid('down')">↓ Down</button>
+            <button onclick="adjustGrid('wider')">⬌ Wider</button>
+            <button onclick="adjustGrid('narrower')">⬍ Narrower</button>
+            <button onclick="adjustGrid('taller')">⬍ Taller</button>
+            <button onclick="adjustGrid('shorter')">⬌ Shorter</button>
+            <button onclick="resetGrid()" style="background: #ef4444;">↺ Reset</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Config View (Manager Only) -->
     <div id="configView" class="hidden">
       <div class="card">
-        <h2 style="margin:0 0 24px;font-size:20px;color:#f97316">⚙️ Settings</h2>
+        <h2 style="margin: 0 0 24px 0; font-size: 20px; color: #f97316;">⚙️ Project Settings</h2>
+        
         <div class="form-grid">
-          <div class="form-group"><label>Project Name</label><input type="text" id="projectNameInput" class="form-control"></div>
-          <div class="form-group"><label>Number of Faces</label><input type="number" id="numFaces" class="form-control" value="4" min="1" max="20" onchange="updateFaces()"></div>
-          <h3 style="color:#999;font-size:14px;margin-top:16px">PER-FACE CONFIG</h3>
-          <div id="faceConfigList"></div>
-          <button class="btn btn-purple" onclick="saveConfig()">💾 Save All</button>
+          <h3 style="color: #999; font-size: 14px; margin-bottom: -8px;">PROJECT SETTINGS</h3>
+          
+          <div class="form-group">
+            <label>Project Name</label>
+            <input type="text" id="projectNameInput" class="form-control" placeholder="e.g., Harbor Tower Inspection">
+          </div>
+
+          <div class="form-group">
+            <label>Number of Faces</label>
+            <input type="number" id="numFaces" class="form-control" value="4" min="1" max="20" onchange="updateFaces()">
+          </div>
+
+          <h3 style="color: #999; font-size: 14px; margin-top: 16px; margin-bottom: -8px;">PER-FACE CONFIGURATION</h3>
+          <p style="color: #666; font-size: 13px; margin-bottom: 16px;">Each face can have different grid sizes</p>
+
+          <div id="faceNamesList"></div>
+
+          <button class="btn btn-purple" onclick="saveConfig()">
+            💾 Save All Configuration
+          </button>
         </div>
       </div>
     </div>
   </div>
-  <div id="imageModal" class="modal" onclick="closeModal()"><img id="modalImage" src=""></div>
+
+  <!-- Image Modal -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <img id="modalImage" src="" alt="Defect full view">
+  </div>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <!-- jsPDF and chart.js for reports -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
   <script>
-'use strict';
-const log=(...a)=>console.log('[App]',...a),err=(...a)=>console.error('[ERR]',...a);
-const CONFIG={apiKey:"AIzaSyDork6Cl33rHNPKU88sFYVcOkKW_Wj68BY",authDomain:"building-inspector-79c34.firebaseapp.com",databaseURL:"https://building-inspector-79c34-default-rtdb.asia-southeast1.firebasedatabase.app/",projectId:"building-inspector-79c34",storageBucket:"building-inspector-79c34.firebasestorage.app",messagingSenderId:"73507039597",appId:"1:73507039597:web:1c043682b0d58a6e549264"};
-const PASS="1234",CAT_LABELS={crack:'Cracked Concrete',spalling:'Spalling',water:'Water Damage',corrosion:'Corrosion',other:'Other'},CAT_COLORS={crack:'#ef4444',spalling:'#f97316',water:'#3b82f6',corrosion:'#a855f7',other:'#6b7280'};
-let db;try{firebase.initializeApp(CONFIG);db=firebase.database();log('Firebase OK')}catch(e){err('Firebase fail',e)}
-let S={pid:'',user:'',role:'',defects:[],cfg:{name:'',by:'',nf:4,faces:[]},view:'entry',faceIdx:0,defRef:null,cfgRef:null,grid:{ox:0,oy:0,sx:1,sy:1},show:true};
-const initFaces=(n=4)=>Array.from({length:n},(_,i)=>({name:`Face ${i+1}`,md:15,ml:10,ph:null}));
-const ensureFaces=()=>{if(!S.cfg.faces||!S.cfg.faces.length)S.cfg.faces=initFaces(S.cfg.nf||4)};
-document.addEventListener('DOMContentLoaded',()=>{log('DOM');const w=document.getElementById('workerButton'),m=document.getElementById('managerButton');if(w){w.addEventListener('click',()=>startSession('worker'));w.addEventListener('touchend',e=>{e.preventDefault();startSession('worker')})}if(m){m.addEventListener('click',()=>{const p=prompt('Password:');if(p===PASS)loadManagerProjects();else alert('Wrong')});m.addEventListener('touchend',e=>{e.preventDefault();const p=prompt('Password:');if(p===PASS)loadManagerProjects();else alert('Wrong')})}document.getElementById('photoInput').addEventListener('change',handlePhoto);document.getElementById('facadePhotoInput').addEventListener('change',handleFacade)});
-function loadManagerProjects(){log('LoadProjects');document.getElementById('setupScreen').classList.add('hidden');document.getElementById('projectsScreen').classList.remove('hidden');db.ref('inspections').once('value').then(s=>{const c=document.getElementById('projectsList');if(!s.exists()){c.innerHTML='<div class="empty-state"><p>No projects</p></div>';return}const ps=[];s.forEach(ch=>{const d=ch.val();ps.push({id:ch.key,name:d.config?.name||ch.key,by:d.config?.by||'?',dc:d.defects?Object.keys(d.defects).length:0,nf:d.config?.nf||4})});c.innerHTML=ps.map(p=>`<div class="project-item" onclick="selectProject('${p.id}')"><h4>${p.name}</h4><p>ID:${p.id}|By:${p.by}|Defects:${p.dc}|Faces:${p.nf}</p></div>`).join('')}).catch(e=>err('LoadProjects',e))}
-function selectProject(p){log('Select',p);const n=document.getElementById('userName').value.trim()||prompt('Name:');if(!n)return;document.getElementById('userName').value=n;document.getElementById('projectId').value=p;document.getElementById('projectsScreen').classList.add('hidden');startSession('manager',true)}
-function showCreateProject(){document.getElementById('projectsScreen').classList.add('hidden');document.getElementById('createProjectScreen').classList.remove('hidden')}
-function createNewProject(){const p=document.getElementById('newProjectId').value.trim(),n=document.getElementById('newProjectName').value.trim(),nf=parseInt(document.getElementById('newProjectFaces').value);if(!p||!n){alert('Fill all');return}const u=document.getElementById('userName').value.trim()||prompt('Name:');if(!u)return;log('Create',p);document.getElementById('userName').value=u;document.getElementById('projectId').value=p;const sid=p.replace(/[.#$[\]]/g,'-'),nc={name:n,by:u,nf:nf,faces:initFaces(nf)};db.ref(`inspections/${sid}/config`).set(nc).then(()=>{log('Created');document.getElementById('createProjectScreen').classList.add('hidden');startSession('manager',true)}).catch(e=>err('Create',e))}
-function backToProjects(){document.getElementById('createProjectScreen').classList.add('hidden');loadManagerProjects()}
-function backToSetup(){document.getElementById('projectsScreen').classList.add('hidden');document.getElementById('setupScreen').classList.remove('hidden')}
-function startSession(r,sp=false){const u=document.getElementById('userName').value.trim(),p=document.getElementById('projectId').value.trim();if(!u||!p){alert('Enter name & ID');return}if(!db){alert('No Firebase');return}S.pid=p.replace(/[.#$[\]]/g,'-');S.user=u;S.role=r;log('Start',r,S.pid);document.getElementById('setupScreen').classList.add('hidden');document.getElementById('projectsScreen').classList.add('hidden');document.getElementById('loadingScreen').classList.remove('hidden');S.defRef=db.ref(`inspections/${S.pid}/defects`);S.cfgRef=db.ref(`inspections/${S.pid}/config`);S.cfgRef.once('value').then(cs=>{if(cs.exists()){S.cfg=cs.val();ensureFaces();loadProject()}else{if(r==='manager'){log('Manager new');S.cfg={name:S.pid,by:S.user,nf:4,faces:initFaces(4)};S.cfgRef.set(S.cfg).then(()=>loadProject())}else{alert('Project missing');document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('setupScreen').classList.remove('hidden')}}}).catch(e=>{err('Start',e);alert('Error:'+e.message);document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('setupScreen').classList.remove('hidden')})}
-function loadProject(){log('LoadProject');S.defRef.once('value').then(ds=>{if(ds.exists())S.defects=Object.values(ds.val());setupListeners();document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('mainApp').classList.remove('hidden');document.getElementById('roleBadge').textContent=S.role.toUpperCase();document.getElementById('projectName').textContent=S.pid;document.getElementById('userNameDisplay').textContent=S.user;if(S.role==='manager'){document.getElementById('configBtn').style.display='block';document.getElementById('managerToolbar').style.display='flex'}populateFaces();updateUI();setSync('connected')}).catch(e=>err('LoadProject',e))}
-function exitSession(){if(!confirm('Exit?'))return;log('Exit');if(S.defRef)S.defRef.off();if(S.cfgRef)S.cfgRef.off();document.getElementById('mainApp').classList.add('hidden');document.getElementById('setupScreen').classList.remove('hidden');S={pid:'',user:'',role:'',defects:[],cfg:{name:'',by:'',nf:4,faces:initFaces(4)},view:'entry',faceIdx:0,defRef:null,cfgRef:null,grid:{ox:0,oy:0,sx:1,sy:1},show:true}}
-function setupListeners(){log('Setup listeners');S.defRef.on('value',s=>{S.defects=s.exists()?Object.values(s.val()):[];updateUI();if(S.view==='list')renderList();if(S.view==='liveMap')renderMap();setSync('connected')});S.cfgRef.on('value',s=>{if(s.exists()){S.cfg=s.val();ensureFaces();populateFaces();if(S.view==='liveMap')renderMap()}});db.ref('.info/connected').on('value',s=>setSync(s.val()?'connected':'offline'))}
-function setSync(st){const i=document.getElementById('syncIndicator'),t=document.getElementById('syncText');i.classList.remove('offline');if(st==='offline'){i.classList.add('offline');t.textContent='Offline'}else t.textContent='Connected'}
-function populateFaces(){log('PopulateFaces');ensureFaces();const fs=document.getElementById('face');if(fs)fs.innerHTML=S.cfg.faces.map(f=>`<option>${f.name}</option>`).join('');renderTabs();renderFaceCfg()}
-function renderTabs(){const c=document.getElementById('faceTabs');if(!c)return;ensureFaces();c.innerHTML=S.cfg.faces.map((f,i)=>`<button class="face-tab ${i===S.faceIdx?'active':''}" onclick="selectFace(${i})">${f.name}</button>`).join('')}
-function selectFace(i){log('SelectFace',i);S.faceIdx=i;renderTabs();loadFacade();renderMap()}
-function updateFaces(){const n=parseInt(document.getElementById('numFaces').value);log('UpdateFaces',n);S.cfg.nf=n;while(S.cfg.faces.length<n)S.cfg.faces.push({name:`Face ${S.cfg.faces.length+1}`,md:15,ml:10,ph:null});if(S.cfg.faces.length>n)S.cfg.faces=S.cfg.faces.slice(0,n);renderFaceCfg()}
-function renderFaceCfg(){const c=document.getElementById('faceConfigList');if(!c)return;ensureFaces();c.innerHTML=S.cfg.faces.map((f,i)=>`<div class="face-config-item"><h4>Face ${i+1}</h4><div class="form-grid"><div class="form-group"><label>Name</label><input type="text" class="form-control" value="${f.name}" onchange="S.cfg.faces[${i}].name=this.value"></div><div class="form-row"><div class="form-group"><label>Max Drops</label><input type="number" class="form-control" value="${f.md}" min="1" max="50" onchange="S.cfg.faces[${i}].md=parseInt(this.value)"></div><div class="form-group"><label>Max Levels</label><input type="number" class="form-control" value="${f.ml}" min="1" max="50" onchange="S.cfg.faces[${i}].ml=parseInt(this.value)"></div></div></div></div>`).join('')}
-function handlePhoto(e){const f=e.target.files[0];if(!f)return;if(f.size>5e6){alert('Too big (max 5MB)');e.target.value='';return}log('Photo',f.size);setSync('syncing');const r=new FileReader();r.onloadend=()=>{const d={id:Date.now(),building:document.getElementById('building').value,face:document.getElementById('face').value,drop:document.getElementById('drop').value,level:document.getElementById('level').value,category:document.getElementById('category').value,defectNumber:S.defects.length+1,description:document.getElementById('description').value||'No description',image:r.result,timestamp:new Date().toISOString(),addedBy:S.user};S.defRef.child(d.id.toString()).set(d).then(()=>{log('Saved',d.defectNumber);document.getElementById('description').value='';e.target.value='';alert(`✅ Defect #${d.defectNumber} logged`)}).catch(e=>{err('Save',e);alert('Error:'+e.message)})};r.readAsDataURL(f)}
-function deleteDefect(id){if(S.role!=='manager')return;if(!confirm('Delete?'))return;log('Delete',id);setSync('syncing');S.defRef.child(id.toString()).remove().then(()=>{const r=S.defects.filter(d=>d.id!==id),u={};r.forEach((d,i)=>{d.defectNumber=i+1;u[d.id]=d});S.defRef.set(u)}).catch(e=>err('Delete',e))}
-function clearAllData(){if(S.role!=='manager')return;if(!confirm(`Delete all ${S.defects.length}?`))return;log('Clear');setSync('syncing');S.defRef.remove().catch(e=>err('Clear',e))}
-function saveConfig(){if(S.role!=='manager')return;log('SaveCfg');S.cfg.name=document.getElementById('projectNameInput').value;S.cfg.nf=parseInt(document.getElementById('numFaces').value);setSync('syncing');S.cfgRef.set(S.cfg).then(()=>{log('Saved');alert('Saved!')}).catch(e=>{err('SaveCfg',e);alert('Error:'+e.message)})}
-function handleFacade(e){const f=e.target.files[0];if(!f)return;log('Facade');const r=new FileReader();r.onloadend=()=>{ensureFaces();S.cfg.faces[S.faceIdx].ph=r.result;if(S.role==='manager')S.cfgRef.update({faces:S.cfg.faces}).then(()=>{log('FacadeSaved');loadFacade();renderMap()});else{loadFacade();renderMap()}};r.readAsDataURL(f)}
-function loadFacade(){ensureFaces();const f=S.cfg.faces[S.faceIdx],u=document.getElementById('facadeUploadZone'),g=document.getElementById('gridControls');if(f&&f.ph){if(u)u.classList.add('has-photo');if(g)g.style.display='flex'}else{if(u)u.classList.remove('has-photo');if(g)g.style.display='none'}}
-function adjustGrid(d){const step=10,ss=0.05;switch(d){case'left':S.grid.ox-=step;break;case'right':S.grid.ox+=step;break;case'up':S.grid.oy-=step;break;case'down':S.grid.oy+=step;break;case'wider':S.grid.sx+=ss;break;case'narrower':S.grid.sx-=ss;break;case'taller':S.grid.sy+=ss;break;case'shorter':S.grid.sy-=ss;break}renderMap()}
-function resetGrid(){S.grid={ox:0,oy:0,sx:1,sy:1};renderMap()}
-function renderMap(){const cv=document.getElementById('liveMapCanvas');if(!cv)return;const ctx=cv.getContext('2d');ensureFaces();if(S.faceIdx>=S.cfg.faces.length)S.faceIdx=0;const f=S.cfg.faces[S.faceIdx],gt=document.getElementById('gridToggle');S.show=gt?gt.checked:true;const w=800,h=600;cv.width=w;cv.height=h;const m=40,gw=(w-m*2)*S.grid.sx,gh=(h-m*2)*S.grid.sy,gx=m+S.grid.ox,gy=m+S.grid.oy;ctx.fillStyle='#1a1a1a';ctx.fillRect(0,0,w,h);if(f.ph){const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,w,h);draw()};img.onerror=()=>{err('ImgLoad');draw()};img.src=f.ph}else draw();function draw(){const cw=gw/f.md,ch=gh/f.ml;if(S.show){ctx.strokeStyle=f.ph?'#f97316':'#444';ctx.lineWidth=3;ctx.strokeRect(gx,gy,gw,gh);ctx.strokeStyle=f.ph?'rgba(249,115,22,0.5)':'#333';ctx.lineWidth=1;for(let i=1;i<f.ml;i++){const y=gy+(i*ch);ctx.beginPath();ctx.moveTo(gx,y);ctx.lineTo(gx+gw,y);ctx.stroke()}for(let i=1;i<f.md;i++){const x=gx+(i*cw);ctx.beginPath();ctx.moveTo(x,gy);ctx.lineTo(x,gy+gh);ctx.stroke()}ctx.fillStyle=f.ph?'#fff':'#666';ctx.font='12px Arial';ctx.textAlign='right';for(let i=0;i<f.ml;i++){const l=f.ml-i,y=gy+(i*ch)+(ch/2)+4;ctx.fillText(l.toString(),gx-5,y)}ctx.textAlign='center';for(let i=0;i<f.md;i++){const x=gx+(i*cw)+(cw/2);ctx.fillText((i+1).toString(),x,gy-5)}}const fds=S.defects.filter(d=>d.face===f.name),dbl={};fds.forEach(d=>{const k=`${d.drop}-${d.level}`;if(!dbl[k])dbl[k]=[];dbl[k].push(d)});const ce=document.getElementById('faceDefectCount'),ne=document.getElementById('currentFaceName');if(ce)ce.textContent=fds.length;if(ne)ne.textContent=f.name;Object.entries(dbl).forEach(([k,lds])=>{const[dr,lv]=k.split('-').map(Number);if(dr>f.md||lv>f.ml)return;const bx=gx+((dr-1)*cw),by=gy+((f.ml-lv)*ch),cnt=lds.length,cols=Math.ceil(Math.sqrt(cnt)),rows=Math.ceil(cnt/cols),ms=Math.min(14,(cw/(cols+1)),(ch/(rows+1))),sx=cw/(cols+1),sy=ch/(rows+1);lds.forEach((d,i)=>{const col=i%cols,row=Math.floor(i/cols),x=bx+sx*(col+1),y=by+sy*(row+1);ctx.fillStyle=CAT_COLORS[d.category]||'#f97316';ctx.beginPath();ctx.arc(x,y,ms,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.font=`bold ${Math.max(9,ms*0.7)}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(d.defectNumber.toString(),x,y)})})}}
-function showView(v){log('View',v);S.view=v;document.getElementById('entryView').classList.toggle('hidden',v!=='entry');document.getElementById('listView').classList.toggle('hidden',v!=='list');document.getElementById('liveMapView').classList.toggle('hidden',v!=='liveMap');document.getElementById('configView').classList.toggle('hidden',v!=='config');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(v==='entry')document.querySelector('.nav-btn:nth-child(1)').classList.add('active');if(v==='list'){document.querySelector('.nav-btn:nth-child(2)').classList.add('active');renderList()}if(v==='liveMap'){document.querySelector('.nav-btn:nth-child(3)').classList.add('active');loadFacade();renderMap()}if(v==='config'){document.getElementById('configBtn').classList.add('active');document.getElementById('projectNameInput').value=S.cfg.name||'';document.getElementById('numFaces').value=S.cfg.nf||4;renderFaceCfg()}}
-function renderList(){const c=document.getElementById('defectListContainer');if(!c)return;if(!S.defects.length){c.innerHTML='<div class="empty-state"><p>No defects</p></div>';return}c.innerHTML=S.defects.map(d=>`<div class="defect-item"><img src="${d.image}" class="defect-img" onclick="showImage('${d.image}')"><div class="defect-info"><div class="defect-number">Defect #${d.defectNumber} <span class="category-badge category-${d.category}">${CAT_LABELS[d.category]}</span></div><div class="defect-meta"><div><strong>Building:</strong>${d.building}</div><div><strong>Face:</strong>${d.face}</div><div><strong>Drop:</strong>${d.drop}</div><div><strong>Level:</strong>${d.level}</div><div><strong>By:</strong>${d.addedBy}</div></div><div class="defect-desc">${d.description}</div></div>${S.role==='manager'?`<button class="delete-btn" onclick="deleteDefect(${d.id})">🗑️</button>`:''}</div>`).join('')}
-function showImage(s){document.getElementById('modalImage').src=s;document.getElementById('imageModal').classList.add('active')}
-function closeModal(){document.getElementById('imageModal').classList.remove('active')}
-function updateUI(){const c=document.getElementById('defectCount'),n=document.getElementById('nextDefectNumber');if(c)c.textContent=S.defects.length;if(n)n.textContent=S.defects.length+1}
-async function exportWordDoc(){if(S.role!=='manager'||!S.defects.length){alert(S.role!=='manager'?'Managers only':'No defects');return}try{log('ExportWord');ensureFaces();const cc={};Object.keys(CAT_LABELS).forEach(k=>cc[k]=0);S.defects.forEach(d=>{if(cc[d.category]!==undefined)cc[d.category]++});let h=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><title>Report</title><style>body{font-family:Arial}.cover-page{text-align:center;padding:100px 50px;page-break-after:always}.summary{padding:40px;page-break-after:always}.stats{display:flex;justify-content:space-around;margin:30px 0}.stat-box{text-align:center;padding:20px;background:#ecf0f1;border-radius:8px}.stat-number{font-size:48px;font-weight:bold;color:#3498db}.category-item{padding:15px;margin:10px 0;background:#f8f9fa;border-left:4px solid #3498db}.defect-table{width:100%;border-collapse:collapse;margin:20px 40px}.defect-table td{border:1px solid #ddd;padding:15px;vertical-align:top}.defect-photo{width:100%;max-width:400px}</style></head><body><div class="cover-page"><h1>Building Inspection Report</h1><h2>${S.cfg.name||S.pid}</h2><p style="font-size:18px;margin-top:60px">Generated:${new Date().toLocaleDateString()}<br>Total:${S.defects.length}<br>By:${S.cfg.by||'Team'}</p></div><div class="summary"><h2>Summary</h2><div class="stats"><div class="stat-box"><div class="stat-number">${S.defects.length}</div><div>Defects</div></div><div class="stat-box"><div class="stat-number">${S.cfg.faces.length}</div><div>Faces</div></div><div class="stat-box"><div class="stat-number">${new Set(S.defects.map(d=>d.addedBy)).size}</div><div>Inspectors</div></div></div><h3>By Category</h3>${Object.entries(cc).filter(([k,v])=>v>0).map(([k,v])=>`<div class="category-item"><strong>${CAT_LABELS[k]}:</strong>${v} (${((v/S.defects.length)*100).toFixed(1)}%)</div>`).join('')}<h3>By Face</h3>${S.cfg.faces.map(f=>{const c=S.defects.filter(d=>d.face===f.name).length;return`<div class="category-item"><strong>${f.name}:</strong>${c}</div>`}).join('')}</div><h2 style="padding:40px 40px 20px">Defects</h2>`;for(let i=0;i<S.defects.length;i+=2){const d1=S.defects[i],d2=S.defects[i+1];h+=`<table class="defect-table"><tr>${d1?`<td style="width:50%"><img src="${d1.image}" class="defect-photo"/></td>`:'<td></td>'}${d2?`<td style="width:50%"><img src="${d2.image}" class="defect-photo"/></td>`:'<td></td>'}</tr><tr>${d1?`<td><strong>Defect:${d1.defectNumber}</strong></td>`:'<td></td>'}${d2?`<td><strong>Defect:${d2.defectNumber}</strong></td>`:'<td></td>'}</tr><tr>${d1?`<td>${CAT_LABELS[d1.category]}<br><em>${d1.description}</em><br><small>Face:${d1.face}|Drop:${d1.drop}|Level:${d1.level}|By:${d1.addedBy}</small></td>`:'<td></td>'}${d2?`<td>${CAT_LABELS[d2.category]}<br><em>${d2.description}</em><br><small>Face:${d2.face}|Drop:${d2.drop}|Level:${d2.level}|By:${d2.addedBy}</small></td>`:'<td></td>'}</tr></table>`;if((i+2)%6===0&&i+2<S.defects.length)h+='<div style="page-break-after:always"></div>'}h+='</body></html>';const b=new Blob(['\ufeff',h],{type:'application/msword;charset=utf-8'}),u=URL.createObjectURL(b),l=document.createElement('a');l.href=u;l.download=`Report-${S.pid}-${new Date().toISOString().split('T')[0]}.doc`;document.body.appendChild(l);l.click();setTimeout(()=>{document.body.removeChild(l);URL.revokeObjectURL(u)},100);log('WordOK');alert('✅ Report downloaded')}catch(e){err('Word',e);alert('❌ Error:'+e.message)}}
-async function exportPDF(){if(S.role!=='manager'||!S.defects.length){alert(S.role!=='manager'?'Managers only':'No defects');return}try{log('ExportPDF');const{jsPDF}=window.jspdf,doc=new jsPDF();doc.setFontSize(28);doc.text('Building Inspection Report',105,100,{align:'center'});doc.setFontSize(18);doc.text(S.cfg.name||S.pid,105,120,{align:'center'});doc.setFontSize(12);doc.text(`Generated:${new Date().toLocaleDateString()}`,105,160,{align:'center'});doc.text(`Total:${S.defects.length}`,105,170,{align:'center'});S.defects.forEach(d=>{doc.addPage();doc.setFontSize(16);doc.setTextColor(52,152,219);doc.text(`Defect #${d.defectNumber}`,20,20);doc.setFontSize(12);doc.setTextColor(0,0,0);doc.text(`Category:${CAT_LABELS[d.category]}`,20,35);doc.text(`Face:${d.face}|Drop:${d.drop}|Level:${d.level}`,20,42);doc.text(`By:${d.addedBy}`,20,49);doc.text(`Description:${d.description}`,20,56,{maxWidth:170});if(d.image){try{doc.addImage(d.image,'JPEG',20,70,170,127)}catch(e){err('AddImg',e)}}});doc.save(`Report-${S.pid}-${new Date().toISOString().split('T')[0]}.pdf`);log('PDF OK');alert('✅ PDF downloaded')}catch(e){err('PDF',e);alert('❌ Error:'+e.message)}}
-async function exportDefectMapsPDF(){if(S.role!=='manager'||!S.defects.length){alert(S.role!=='manager'?'Managers only':'No defects');return}try{log('ExportMaps');ensureFaces();const{jsPDF}=window.jspdf,doc=new jsPDF('l','mm','a4');let fp=true;S.cfg.faces.forEach((f,fi)=>{if(!fp)doc.addPage();fp=false;const fds=S.defects.filter(d=>d.face===f.name);doc.setFontSize(20);doc.setTextColor(249,115,22);doc.text(`${f.name} - Defect Map`,20,20);doc.setFontSize(12);doc.setTextColor(100,100,100);doc.text(`Project:${S.cfg.name||S.pid}`,20,30);doc.text(`Defects:${fds.length}`,20,37);doc.text(`Grid:${f.md}×${f.ml}`,20,44);const m=20,gw=240,gh=160,gx=20,gy=55,cw=gw/f.md,ch=gh/f.ml;doc.setDrawColor(150,150,150);doc.setLineWidth(0.3);doc.rect(gx,gy,gw,gh);for(let i=1;i<f.ml;i++){const y=gy+(i*ch);doc.line(gx,y,gx+gw,y)}for(let i=1;i<f.md;i++){const x=gx+(i*cw);doc.line(x,gy,x,gy+gh)}doc.setFontSize(8);doc.setTextColor(100,100,100);for(let i=0;i<f.ml;i++){const l=f.ml-i,y=gy+(i*ch)+(ch/2);doc.text(l.toString(),gx-5,y,{align:'right'})}for(let i=0;i<f.md;i++){const x=gx+(i*cw)+(cw/2);doc.text((i+1).toString(),x,gy-2,{align:'center'})}const dbl={};fds.forEach(d=>{const k=`${d.drop}-${d.level}`;if(!dbl[k])dbl[k]=[];dbl[k].push(d)});doc.setFontSize(10);Object.entries(dbl).forEach(([k,lds])=>{const[dr,lv]=k.split('-').map(Number);if(dr>f.md||lv>f.ml)return;const bx=gx+((dr-1)*cw),by=gy+((f.ml-lv)*ch),cols=Math.ceil(Math.sqrt(lds.length)),rows=Math.ceil(lds.length/cols),sx=cw/(cols+1),sy=ch/(rows+1);lds.forEach((d,i)=>{const col=i%cols,row=Math.floor(i/cols),x=bx+sx*(col+1),y=by+sy*(row+1),c=CAT_COLORS[d.category]||'#f97316',rgb=c.match(/\w\w/g).map(h=>parseInt(h,16));doc.setFillColor(rgb[0],rgb[1],rgb[2]);doc.circle(x,y,2,'F');doc.setTextColor(255,255,255);doc.setFontSize(8);doc.text(d.defectNumber.toString(),x,y+1,{align:'center'})})});let ly=gy+gh+15;doc.setFontSize(10);doc.setTextColor(0,0,0);doc.text('Defect List (Searchable):',20,ly);ly+=7;doc.setFontSize(8);fds.forEach((d,i)=>{if(ly>190){doc.addPage();ly=20;doc.setFontSize(12);doc.text(`${f.name} - Continued`,20,ly);ly+=10;doc.setFontSize(8)}const c=CAT_COLORS[d.category]||'#f97316',rgb=c.match(/\w\w/g).map(h=>parseInt(h,16));doc.setFillColor(rgb[0],rgb[1],rgb[2]);doc.circle(22,ly-1,1.5,'F');doc.setTextColor(0,0,0);doc.text(`#${d.defectNumber}-Drop${d.drop},Level${d.level}-${CAT_LABELS[d.category]}-${d.description.substring(0,50)}`,27,ly);ly+=5})});doc.save(`Maps-${S.pid}-${new Date().toISOString().split('T')[0]}.pdf`);log('MapsOK');alert(`✅ Searchable PDF with ${S.cfg.faces.length} maps downloaded`)}catch(e){err('Maps',e);alert('❌ Error:'+e.message)}}
-log('Ready');
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDork6Cl33rHNPKU88sFYVcOkKW_Wj68BY",
+      authDomain: "building-inspector-79c34.firebaseapp.com",
+      databaseURL: "https://building-inspector-79c34-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "building-inspector-79c34",
+      storageBucket: "building-inspector-79c34.firebasestorage.app",
+      messagingSenderId: "73507039597",
+      appId: "1:73507039597:web:1c043682b0d58a6e549264"
+    };
+
+    // Initialize Firebase
+    let db;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
+    }
+
+    // Application State
+    const MANAGER_PASSWORD = "1234";
+    let projectId = '';
+    let userName = '';
+    let userRole = '';
+    let defects = [];
+    let config = {
+      projectName: '',
+      createdBy: '',
+      numFaces: 4,
+      faceNames: ['Face 1', 'Face 2', 'Face 3', 'Face 4'],
+      faceConfigs: {
+        'Face 1': { maxDrops: 15, maxLevels: 10 },
+        'Face 2': { maxDrops: 15, maxLevels: 10 },
+        'Face 3': { maxDrops: 15, maxLevels: 10 },
+        'Face 4': { maxDrops: 15, maxLevels: 10 }
+      },
+      facadePhotos: {}
+    };
+    let currentView = 'entry';
+    let currentFaceIndex = 0;
+    let defectsRef = null;
+    let configRef = null;
+    let facadePhoto = null;
+    let gridAdjustments = {
+      offsetX: 0,
+      offsetY: 0,
+      scaleX: 1,
+      scaleY: 1
+    };
+    let showGrid = true;
+
+    // Touch event support
+    document.addEventListener('DOMContentLoaded', function() {
+      const workerBtn = document.getElementById('workerButton');
+      const managerBtn = document.getElementById('managerButton');
+      
+      if (workerBtn) {
+        workerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          startSession('worker');
+        }, false);
+        workerBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          startSession('worker');
+        }, false);
+      }
+      
+      if (managerBtn) {
+        managerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const password = prompt('Enter manager password:');
+          if (password === MANAGER_PASSWORD) {
+            loadManagerProjects();
+          } else {
+            alert('Incorrect password!');
+          }
+        }, false);
+        managerBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          const password = prompt('Enter manager password:');
+          if (password === MANAGER_PASSWORD) {
+            loadManagerProjects();
+          } else {
+            alert('Incorrect password!');
+          }
+        }, false);
+      }
+    });
+
+    // Manager Project Functions
+    function loadManagerProjects() {
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('projectsScreen').classList.remove('hidden');
+      
+      const projectsListRef = db.ref('inspections');
+      projectsListRef.once('value').then((snapshot) => {
+        const container = document.getElementById('projectsList');
+        
+        if (!snapshot.exists()) {
+          container.innerHTML = '<div class="empty-state"><p>No projects yet. Create your first one!</p></div>';
+          return;
+        }
+        
+        const projects = [];
+        snapshot.forEach((child) => {
+          const projectData = child.val();
+          projects.push({
+            id: child.key,
+            name: projectData.config?.projectName || child.key,
+            createdBy: projectData.config?.createdBy || 'Unknown',
+            defectCount: projectData.defects ? Object.keys(projectData.defects).length : 0,
+            faces: projectData.config?.numFaces || 4
+          });
+        });
+        
+        container.innerHTML = projects.map(p => `
+          <div class="project-item" onclick="selectProject('${p.id}')">
+            <h4>${p.name}</h4>
+            <p>ID: ${p.id}</p>
+            <p>Created by: ${p.createdBy} | Defects: ${p.defectCount} | Faces: ${p.faces}</p>
+          </div>
+        `).join('');
+      });
+    }
+
+    function selectProject(pid) {
+      const name = document.getElementById('userName').value.trim() || prompt('Enter your name:');
+      if (!name) return;
+      
+      document.getElementById('userName').value = name;
+      document.getElementById('projectId').value = pid;
+      
+      document.getElementById('projectsScreen').classList.add('hidden');
+      startSession('manager', true);
+    }
+
+    function showCreateProject() {
+      document.getElementById('projectsScreen').classList.add('hidden');
+      document.getElementById('createProjectScreen').classList.remove('hidden');
+    }
+
+    function createNewProject() {
+      const pid = document.getElementById('newProjectId').value.trim();
+      const pname = document.getElementById('newProjectName').value.trim();
+      const numFaces = parseInt(document.getElementById('newProjectFaces').value);
+      
+      if (!pid || !pname) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      const name = document.getElementById('userName').value.trim() || prompt('Enter your name:');
+      if (!name) return;
+      
+      document.getElementById('userName').value = name;
+      document.getElementById('projectId').value = pid;
+      
+      // Create project with initial config
+      const sanitizedId = pid.replace(/[.#$[\]]/g, '-');
+      const newConfig = {
+        maxDrops: 15,
+        maxLevels: 10,
+        projectName: pname,
+        createdBy: name,
+        numFaces: numFaces,
+        faceNames: Array.from({length: numFaces}, (_, i) => `Face ${i + 1}`),
+        facadePhotos: {}
+      };
+      
+      db.ref(`inspections/${sanitizedId}/config`).set(newConfig).then(() => {
+        document.getElementById('createProjectScreen').classList.add('hidden');
+        startSession('manager', true);
+      });
+    }
+
+    function backToProjects() {
+      document.getElementById('createProjectScreen').classList.add('hidden');
+      loadManagerProjects();
+    }
+
+    function backToSetup() {
+      document.getElementById('projectsScreen').classList.add('hidden');
+      document.getElementById('setupScreen').classList.remove('hidden');
+    }
+
+    // Session Management
+    function startSession(role, skipPasswordCheck = false) {
+      const inputUserName = document.getElementById('userName').value.trim();
+      const inputProjectId = document.getElementById('projectId').value.trim();
+      
+      if (!inputUserName) {
+        alert('Please enter your name');
+        return;
+      }
+
+      if (!inputProjectId) {
+        alert('Please enter a Project ID');
+        return;
+      }
+
+      if (!db) {
+        alert('Firebase not configured');
+        return;
+      }
+
+      projectId = inputProjectId.replace(/[.#$[\]]/g, '-');
+      userName = inputUserName;
+      userRole = role;
+
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('projectsScreen').classList.add('hidden');
+      document.getElementById('loadingScreen').classList.remove('hidden');
+
+      defectsRef = db.ref(`inspections/${projectId}/defects`);
+      configRef = db.ref(`inspections/${projectId}/config`);
+
+      configRef.once('value').then((configSnapshot) => {
+        if (configSnapshot.exists()) {
+          config = configSnapshot.val();
+          loadExistingProject();
+        } else {
+          if (role === 'manager') {
+            config.createdBy = userName;
+            config.projectName = projectId;
+            configRef.set(config).then(() => {
+              loadExistingProject();
+            });
+          } else {
+            alert('This project does not exist. Please ask a manager to create it first.');
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('setupScreen').classList.remove('hidden');
+          }
+        }
+      }).catch(error => {
+        alert('Error connecting: ' + error.message);
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('setupScreen').classList.remove('hidden');
+      });
+    }
+
+    function loadExistingProject() {
+      defectsRef.once('value').then((defectsSnapshot) => {
+        if (defectsSnapshot.exists()) {
+          const defectsObj = defectsSnapshot.val();
+          defects = Object.values(defectsObj);
+        }
+
+        setupRealtimeListeners();
+
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('roleBadge').textContent = userRole.toUpperCase();
+        document.getElementById('projectName').textContent = projectId;
+        document.getElementById('userNameDisplay').textContent = userName;
+
+        if (userRole === 'manager') {
+          document.getElementById('configBtn').style.display = 'block';
+          document.getElementById('managerToolbar').style.display = 'flex';
+        }
+
+        populateFaceSelectors();
+        loadFacadePhoto();
+        updateUI();
+        setSyncIndicator('connected');
+      });
+    }
+
+    function exitSession() {
+      if (confirm('Exit this inspection session?')) {
+        if (defectsRef) defectsRef.off();
+        if (configRef) configRef.off();
+
+        document.getElementById('mainApp').classList.add('hidden');
+        document.getElementById('setupScreen').classList.remove('hidden');
+        projectId = '';
+        userName = '';
+        userRole = '';
+        defects = [];
+        defectsRef = null;
+        configRef = null;
+      }
+    }
+
+    // Real-time Sync
+    function setupRealtimeListeners() {
+      defectsRef.on('value', (snapshot) => {
+        if (snapshot.exists()) {
+          const defectsObj = snapshot.val();
+          defects = Object.values(defectsObj);
+        } else {
+          defects = [];
+        }
+        updateUI();
+        if (currentView === 'list') {
+          renderDefectList();
+        }
+        if (currentView === 'liveMap') {
+          renderLiveMap();
+        }
+        setSyncIndicator('connected');
+      });
+
+      configRef.on('value', (snapshot) => {
+        if (snapshot.exists()) {
+          config = snapshot.val();
+          
+          // Ensure faceConfigs exists
+          if (!config.faceConfigs) {
+            config.faceConfigs = {};
+            if (config.faceNames) {
+              config.faceNames.forEach(name => {
+                config.faceConfigs[name] = { 
+                  maxDrops: config.maxDrops || 15, 
+                  maxLevels: config.maxLevels || 10 
+                };
+              });
+            }
+          }
+          
+          document.getElementById('projectNameInput').value = config.projectName || '';
+          document.getElementById('numFaces').value = config.numFaces || 4;
+          
+          populateFaceSelectors();
+          loadFacadePhoto();
+          if (currentView === 'liveMap') {
+            renderLiveMap();
+          }
+        }
+      });
+
+      const connectedRef = db.ref('.info/connected');
+      connectedRef.on('value', (snap) => {
+        setSyncIndicator(snap.val() === true ? 'connected' : 'offline');
+      });
+    }
+
+    function setSyncIndicator(state) {
+      const indicator = document.getElementById('syncIndicator');
+      const text = document.getElementById('syncText');
+      
+      indicator.classList.remove('syncing', 'offline');
+      
+      if (state === 'syncing') {
+        indicator.classList.add('syncing');
+        text.textContent = 'Syncing...';
+      } else if (state === 'offline') {
+        indicator.classList.add('offline');
+        text.textContent = 'Offline';
+      } else {
+        text.textContent = 'Connected';
+      }
+    }
+
+    // Face Management
+    function populateFaceSelectors() {
+      const faceSelect = document.getElementById('face');
+      const faceNames = config.faceNames || Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      
+      faceSelect.innerHTML = faceNames.map(name => `<option>${name}</option>`).join('');
+      
+      renderFaceTabs();
+      updateFaceNamesConfig();
+    }
+
+    function renderFaceTabs() {
+      const container = document.getElementById('faceTabs');
+      if (!container) return;
+      
+      if (!config.faceNames || config.faceNames.length === 0) {
+        config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+      }
+      
+      const faceNames = config.faceNames;
+      
+      container.innerHTML = faceNames.map((name, idx) => `
+        <button class="face-tab ${idx === currentFaceIndex ? 'active' : ''}" onclick="selectFace(${idx})">
+          ${name}
+        </button>
+      `).join('');
+    }
+
+    function selectFace(index) {
+      currentFaceIndex = index;
+      renderFaceTabs();
+      loadFacadePhoto();
+      renderLiveMap();
+      
+      // Update the current face name display
+      const currentFaceName = config.faceNames[currentFaceIndex];
+      document.getElementById('currentFaceName').textContent = currentFaceName;
+      
+      // Update face defect count
+      const faceDefects = defects.filter(d => d.face === currentFaceName);
+      document.getElementById('faceDefectCount').textContent = faceDefects.length;
+    }
+
+    function updateFaces() {
+      const numFaces = parseInt(document.getElementById('numFaces').value);
+      config.numFaces = numFaces;
+      
+      if (!config.faceNames || config.faceNames.length !== numFaces) {
+        config.faceNames = Array.from({length: numFaces}, (_, i) => 
+          config.faceNames?.[i] || `Face ${i + 1}`
+        );
+      }
+      
+      updateFaceNamesConfig();
+    }
+
+    function updateFaceNamesConfig() {
+      const container = document.getElementById('faceNamesList');
+      if (!config.faceNames) config.faceNames = Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      if (!config.faceConfigs) {
+        config.faceConfigs = {};
+        config.faceNames.forEach(name => {
+          config.faceConfigs[name] = { maxDrops: 15, maxLevels: 10 };
+        });
+      }
+      
+      container.innerHTML = config.faceNames.map((name, idx) => {
+        const faceConfig = config.faceConfigs[name] || { maxDrops: 15, maxLevels: 10 };
+        return `
+        <div class="card" style="background: #1a1a1a; padding: 16px; margin-top: 16px;">
+          <h4 style="color: #f97316; margin-bottom: 12px;">Face ${idx + 1} Configuration</h4>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>Face Name</label>
+            <input type="text" class="form-control" value="${name}" onchange="updateFaceName(${idx}, this.value)">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Max Drops</label>
+              <input type="number" class="form-control" value="${faceConfig.maxDrops}" min="1" max="50" 
+                     onchange="updateFaceGridConfig('${name}', 'maxDrops', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Max Levels</label>
+              <input type="number" class="form-control" value="${faceConfig.maxLevels}" min="1" max="50" 
+                     onchange="updateFaceGridConfig('${name}', 'maxLevels', this.value)">
+            </div>
+          </div>
+        </div>
+      `}).join('');
+    }
+
+    function updateFaceName(index, value) {
+      if (!config.faceNames) {
+        config.faceNames = Array.from({length: config.numFaces}, (_, i) => `Face ${i + 1}`);
+      }
+      const oldName = config.faceNames[index];
+      config.faceNames[index] = value;
+      
+      // Migrate face config to new name
+      if (config.faceConfigs && config.faceConfigs[oldName]) {
+        config.faceConfigs[value] = config.faceConfigs[oldName];
+        delete config.faceConfigs[oldName];
+      }
+      
+      // Migrate facade photo to new name
+      if (config.facadePhotos && config.facadePhotos[oldName]) {
+        config.facadePhotos[value] = config.facadePhotos[oldName];
+        delete config.facadePhotos[oldName];
+      }
+    }
+    
+    function updateFaceGridConfig(faceName, property, value) {
+      if (!config.faceConfigs) config.faceConfigs = {};
+      if (!config.faceConfigs[faceName]) config.faceConfigs[faceName] = { maxDrops: 15, maxLevels: 10 };
+      config.faceConfigs[faceName][property] = parseInt(value);
+    }
+
+    // Defect Management
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Image too large (max 5MB)');
+          e.target.value = '';
+          return;
+        }
+
+        setSyncIndicator('syncing');
+        
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          const newDefect = {
+            id: Date.now(),
+            building: document.getElementById('building').value,
+            face: document.getElementById('face').value,
+            drop: document.getElementById('drop').value,
+            level: document.getElementById('level').value,
+            category: document.getElementById('category').value,
+            defectNumber: defects.length + 1,
+            description: document.getElementById('description').value || 'No description provided',
+            image: reader.result,
+            timestamp: new Date().toISOString(),
+            addedBy: userName
+          };
+
+          defectsRef.child(newDefect.id.toString()).set(newDefect).then(() => {
+            document.getElementById('description').value = '';
+            e.target.value = '';
+            alert(`✅ Defect #${newDefect.defectNumber} logged!`);
+          }).catch(error => {
+            alert('Error saving: ' + error.message);
+            setSyncIndicator('offline');
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function deleteDefect(id) {
+      if (userRole !== 'manager') return;
+      
+      if (confirm('Delete this defect?')) {
+        setSyncIndicator('syncing');
+        
+        defectsRef.child(id.toString()).remove().then(() => {
+          const remaining = defects.filter(d => d.id !== id);
+          const updates = {};
+          
+          remaining.forEach((d, idx) => {
+            d.defectNumber = idx + 1;
+            updates[d.id] = d;
+          });
+
+          defectsRef.set(updates).then(() => {
+            renderDefectList();
+          });
+        });
+      }
+    }
+
+    function clearAllData() {
+      if (userRole !== 'manager') return;
+      
+      if (confirm(`Delete all ${defects.length} defects?`)) {
+        setSyncIndicator('syncing');
+        defectsRef.remove();
+      }
+    }
+
+    // Config Management
+    function saveConfig() {
+      if (userRole !== 'manager') return;
+
+      config.projectName = document.getElementById('projectNameInput').value;
+      config.numFaces = parseInt(document.getElementById('numFaces').value);
+      
+      // Ensure faceConfigs exists for all faces
+      if (!config.faceConfigs) config.faceConfigs = {};
+      config.faceNames.forEach(name => {
+        if (!config.faceConfigs[name]) {
+          config.faceConfigs[name] = { maxDrops: 15, maxLevels: 10 };
+        }
+      });
+
+      setSyncIndicator('syncing');
+      configRef.set(config).then(() => {
+        alert('Configuration saved!');
+      });
+    }
+
+    // Facade Photo Management
+    document.getElementById('facadePhotoInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          const currentFaceName = config.faceNames[currentFaceIndex];
+          
+          if (!config.facadePhotos) config.facadePhotos = {};
+          config.facadePhotos[currentFaceName] = reader.result;
+          
+          if (userRole === 'manager') {
+            configRef.update({ facadePhotos: config.facadePhotos }).then(() => {
+              facadePhoto = reader.result;
+              document.getElementById('facadeUploadZone').classList.add('has-photo');
+              document.getElementById('gridControls').style.display = 'flex';
+              renderLiveMap();
+            });
+          } else {
+            facadePhoto = reader.result;
+            document.getElementById('facadeUploadZone').classList.add('has-photo');
+            document.getElementById('gridControls').style.display = 'flex';
+            renderLiveMap();
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function loadFacadePhoto() {
+      if (!config.faceNames || config.faceNames.length === 0) {
+        config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+      }
+      
+      if (currentFaceIndex >= config.faceNames.length) {
+        currentFaceIndex = 0;
+      }
+      
+      const currentFaceName = config.faceNames[currentFaceIndex];
+      if (config.facadePhotos && config.facadePhotos[currentFaceName]) {
+        facadePhoto = config.facadePhotos[currentFaceName];
+        const uploadZone = document.getElementById('facadeUploadZone');
+        const gridControls = document.getElementById('gridControls');
+        if (uploadZone) uploadZone.classList.add('has-photo');
+        if (gridControls) gridControls.style.display = 'flex';
+      } else {
+        facadePhoto = null;
+        const uploadZone = document.getElementById('facadeUploadZone');
+        const gridControls = document.getElementById('gridControls');
+        if (uploadZone) uploadZone.classList.remove('has-photo');
+        if (gridControls) gridControls.style.display = 'none';
+      }
+    }
+
+    // Grid Adjustment
+    function adjustGrid(direction) {
+      const step = 10;
+      switch(direction) {
+        case 'left': gridAdjustments.offsetX -= step; break;
+        case 'right': gridAdjustments.offsetX += step; break;
+        case 'up': gridAdjustments.offsetY -= step; break;
+        case 'down': gridAdjustments.offsetY += step; break;
+        case 'wider': gridAdjustments.scaleX += 0.05; break;
+        case 'narrower': gridAdjustments.scaleX -= 0.05; break;
+        case 'taller': gridAdjustments.scaleY += 0.05; break;
+        case 'shorter': gridAdjustments.scaleY -= 0.05; break;
+      }
+      renderLiveMap();
+    }
+
+    function resetGrid() {
+      gridAdjustments = { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 };
+      renderLiveMap();
+    }
+
+    // Live Map Rendering with non-overlapping pins
+    function renderLiveMap() {
+      const canvas = document.getElementById('liveMapCanvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      
+      // Ensure faceNames and faceConfigs exist
+      if (!config.faceNames || config.faceNames.length === 0) {
+        config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+      }
+      if (!config.faceConfigs) {
+        config.faceConfigs = {};
+        config.faceNames.forEach(name => {
+          config.faceConfigs[name] = { maxDrops: 15, maxLevels: 10 };
+        });
+      }
+      
+      // Ensure currentFaceIndex is valid
+      if (currentFaceIndex >= config.faceNames.length) {
+        currentFaceIndex = 0;
+      }
+      
+      const currentFaceName = config.faceNames[currentFaceIndex];
+      const faceConfig = config.faceConfigs[currentFaceName] || { maxDrops: 15, maxLevels: 10 };
+      const gridToggleElement = document.getElementById('gridToggle');
+      showGrid = gridToggleElement ? gridToggleElement.checked : true;
+      
+      const canvasWidth = 800;
+      const canvasHeight = 600;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      
+      const margin = 40;
+      const gridWidth = (canvasWidth - margin * 2) * gridAdjustments.scaleX;
+      const gridHeight = (canvasHeight - margin * 2) * gridAdjustments.scaleY;
+      const gridStartX = margin + gridAdjustments.offsetX;
+      const gridStartY = margin + gridAdjustments.offsetY;
+      
+      // Background
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      
+      // Draw facade photo if exists
+      if (facadePhoto) {
+        const img = new Image();
+        img.onload = function() {
+          ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+          drawGrid();
+        };
+        img.onerror = function() {
+          console.error('Error loading facade photo');
+          drawGrid();
+        };
+        img.src = facadePhoto;
+      } else {
+        drawGrid();
+      }
+      
+      function drawGrid() {
+        const cellWidth = gridWidth / faceConfig.maxDrops;
+        const cellHeight = gridHeight / faceConfig.maxLevels;
+        
+        if (showGrid) {
+          // Grid outline
+          ctx.strokeStyle = facadePhoto ? '#f97316' : '#444';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(gridStartX, gridStartY, gridWidth, gridHeight);
+          
+          // Grid lines
+          ctx.strokeStyle = facadePhoto ? 'rgba(249, 115, 22, 0.5)' : '#333';
+          ctx.lineWidth = 1;
+          
+          for (let i = 1; i < faceConfig.maxLevels; i++) {
+            const y = gridStartY + (i * cellHeight);
+            ctx.beginPath();
+            ctx.moveTo(gridStartX, y);
+            ctx.lineTo(gridStartX + gridWidth, y);
+            ctx.stroke();
+          }
+          
+          for (let i = 1; i < faceConfig.maxDrops; i++) {
+            const x = gridStartX + (i * cellWidth);
+            ctx.beginPath();
+            ctx.moveTo(x, gridStartY);
+            ctx.lineTo(x, gridStartY + gridHeight);
+            ctx.stroke();
+          }
+          
+          // Labels
+          ctx.fillStyle = facadePhoto ? '#fff' : '#666';
+          ctx.font = '12px Arial';
+          ctx.textAlign = 'right';
+          
+          for (let i = 0; i < faceConfig.maxLevels; i++) {
+            const displayLevel = faceConfig.maxLevels - i;
+            const y = gridStartY + (i * cellHeight) + (cellHeight / 2) + 4;
+            ctx.fillText(displayLevel.toString(), gridStartX - 5, y);
+          }
+          
+          ctx.textAlign = 'center';
+          for (let i = 0; i < faceConfig.maxDrops; i++) {
+            const x = gridStartX + (i * cellWidth) + (cellWidth / 2);
+            ctx.fillText((i + 1).toString(), x, gridStartY - 5);
+          }
+        }
+        
+        // Plot defects with smart positioning (no overlaps)
+        const faceDefects = defects.filter(d => d.face === currentFaceName);
+        const defectsByLocation = {};
+        
+        faceDefects.forEach(d => {
+          const key = `${d.drop}-${d.level}`;
+          if (!defectsByLocation[key]) defectsByLocation[key] = [];
+          defectsByLocation[key].push(d);
+        });
+        
+        // Update face defect count
+        const countEl = document.getElementById('faceDefectCount');
+        const nameEl = document.getElementById('currentFaceName');
+        if (countEl) countEl.textContent = faceDefects.length;
+        if (nameEl) nameEl.textContent = currentFaceName;
+        
+        Object.entries(defectsByLocation).forEach(([key, locationDefects]) => {
+          const [drop, level] = key.split('-').map(Number);
+          
+          if (drop > faceConfig.maxDrops || level > faceConfig.maxLevels) return;
+          
+          const baseX = gridStartX + ((drop - 1) * cellWidth);
+          const baseY = gridStartY + ((faceConfig.maxLevels - level) * cellHeight);
+          const count = locationDefects.length;
+          
+          // Calculate layout - GUARANTEE NO OVERLAPS
+          const padding = 4; // Space between markers
+          const minMarkerSize = 12;
+          const maxMarkerSize = 20;
+          
+          // Calculate grid dimensions for this cell
+          const cols = Math.ceil(Math.sqrt(count));
+          const rows = Math.ceil(count / cols);
+          
+          // Calculate max marker size that fits
+          const availableWidth = (cellWidth * 0.9) - (padding * (cols - 1));
+          const availableHeight = (cellHeight * 0.9) - (padding * (rows - 1));
+          const markerSize = Math.min(
+            maxMarkerSize,
+            Math.max(minMarkerSize, availableWidth / cols, availableHeight / rows)
+          );
+          
+          // Calculate actual grid spacing
+          const totalWidth = (markerSize * cols) + (padding * (cols - 1));
+          const totalHeight = (markerSize * rows) + (padding * (rows - 1));
+          const startX = baseX + (cellWidth - totalWidth) / 2;
+          const startY = baseY + (cellHeight - totalHeight) / 2;
+          
+          // Draw each marker in perfect grid
+          locationDefects.forEach((d, idx) => {
+            const col = idx % cols;
+            const row = Math.floor(idx / cols);
+            
+            const x = startX + (col * (markerSize + padding)) + (markerSize / 2);
+            const y = startY + (row * (markerSize + padding)) + (markerSize / 2);
+            
+            // Draw marker with category color
+            const colors = {
+              crack: '#ef4444',
+              spalling: '#f97316',
+              water: '#3b82f6',
+              corrosion: '#a855f7',
+              other: '#6b7280'
+            };
+            
+            ctx.fillStyle = colors[d.category] || '#f97316';
+            ctx.beginPath();
+            ctx.arc(x, y, markerSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // White border
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Defect number - ALWAYS VISIBLE
+            ctx.fillStyle = '#fff';
+            ctx.font = `bold ${Math.max(8, markerSize * 0.6)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(d.defectNumber.toString(), x, y);
+          });
+        });
+      }
+    }
+        
+        if (showGrid) {
+          // Grid outline
+          ctx.strokeStyle = facadePhoto ? '#f97316' : '#444';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(gridStartX, gridStartY, gridWidth, gridHeight);
+          
+          // Grid lines
+          ctx.strokeStyle = facadePhoto ? 'rgba(249, 115, 22, 0.5)' : '#333';
+          ctx.lineWidth = 1;
+          
+          for (let i = 1; i < config.maxLevels; i++) {
+            const y = gridStartY + (i * cellHeight);
+            ctx.beginPath();
+            ctx.moveTo(gridStartX, y);
+            ctx.lineTo(gridStartX + gridWidth, y);
+            ctx.stroke();
+          }
+          
+          for (let i = 1; i < config.maxDrops; i++) {
+            const x = gridStartX + (i * cellWidth);
+            ctx.beginPath();
+            ctx.moveTo(x, gridStartY);
+            ctx.lineTo(x, gridStartY + gridHeight);
+            ctx.stroke();
+          }
+          
+          // Labels
+          ctx.fillStyle = facadePhoto ? '#fff' : '#666';
+          ctx.font = '12px Arial';
+          ctx.textAlign = 'right';
+          
+          for (let i = 0; i < config.maxLevels; i++) {
+            const displayLevel = config.maxLevels - i;
+            const y = gridStartY + (i * cellHeight) + (cellHeight / 2) + 4;
+            ctx.fillText(displayLevel.toString(), gridStartX - 5, y);
+          }
+          
+          ctx.textAlign = 'center';
+          for (let i = 0; i < config.maxDrops; i++) {
+            const x = gridStartX + (i * cellWidth) + (cellWidth / 2);
+            ctx.fillText((i + 1).toString(), x, gridStartY - 5);
+          }
+        }
+        
+        // Plot defects with smart positioning (no overlaps)
+        const faceDefects = defects.filter(d => d.face === currentFaceName);
+        const defectsByLocation = {};
+        
+        faceDefects.forEach(d => {
+          const key = `${d.drop}-${d.level}`;
+          if (!defectsByLocation[key]) defectsByLocation[key] = [];
+          defectsByLocation[key].push(d);
+        });
+        
+        // Update face defect count
+        const countElement = document.getElementById('faceDefectCount');
+        const nameElement = document.getElementById('currentFaceName');
+        if (countElement) countElement.textContent = faceDefects.length;
+        if (nameElement) nameElement.textContent = currentFaceName;
+        
+        Object.entries(defectsByLocation).forEach(([key, locationDefects]) => {
+          const [drop, level] = key.split('-').map(Number);
+          
+          if (drop > config.maxDrops || level > config.maxLevels) return;
+          
+          const baseX = gridStartX + ((drop - 1) * cellWidth);
+          const baseY = gridStartY + ((config.maxLevels - level) * cellHeight);
+          const count = locationDefects.length;
+          
+          // Calculate layout - GUARANTEE NO OVERLAPS
+          const padding = 4; // Space between markers
+          const minMarkerSize = 12;
+          const maxMarkerSize = 20;
+          
+          // Calculate grid dimensions for this cell
+          const cols = Math.ceil(Math.sqrt(count));
+          const rows = Math.ceil(count / cols);
+          
+          // Calculate max marker size that fits
+          const availableWidth = (cellWidth * 0.9) - (padding * (cols - 1));
+          const availableHeight = (cellHeight * 0.9) - (padding * (rows - 1));
+          const markerSize = Math.min(
+            maxMarkerSize,
+            Math.max(minMarkerSize, availableWidth / cols, availableHeight / rows)
+          );
+          
+          // Calculate actual grid spacing
+          const totalWidth = (markerSize * cols) + (padding * (cols - 1));
+          const totalHeight = (markerSize * rows) + (padding * (rows - 1));
+          const startX = baseX + (cellWidth - totalWidth) / 2;
+          const startY = baseY + (cellHeight - totalHeight) / 2;
+          
+          // Draw each marker in perfect grid
+          locationDefects.forEach((d, idx) => {
+            const col = idx % cols;
+            const row = Math.floor(idx / cols);
+            
+            const x = startX + (col * (markerSize + padding)) + (markerSize / 2);
+            const y = startY + (row * (markerSize + padding)) + (markerSize / 2);
+            
+            // Draw marker with category color
+            const colors = {
+              crack: '#ef4444',
+              spalling: '#f97316',
+              water: '#3b82f6',
+              corrosion: '#a855f7',
+              other: '#6b7280'
+            };
+            
+            ctx.fillStyle = colors[d.category] || '#f97316';
+            ctx.beginPath();
+            ctx.arc(x, y, markerSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // White border
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Defect number - ALWAYS VISIBLE
+            ctx.fillStyle = '#fff';
+            ctx.font = `bold ${Math.max(8, markerSize * 0.6)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(d.defectNumber.toString(), x, y);
+          });
+        });
+      }
+    }
+
+    // UI Management
+    function showView(view) {
+      currentView = view;
+      document.getElementById('entryView').classList.toggle('hidden', view !== 'entry');
+      document.getElementById('listView').classList.toggle('hidden', view !== 'list');
+      document.getElementById('liveMapView').classList.toggle('hidden', view !== 'liveMap');
+      document.getElementById('configView').classList.toggle('hidden', view !== 'config');
+      
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      
+      if (view === 'entry') document.querySelector('.nav-btn:nth-child(1)').classList.add('active');
+      if (view === 'list') {
+        document.querySelector('.nav-btn:nth-child(2)').classList.add('active');
+        renderDefectList();
+      }
+      if (view === 'liveMap') {
+        document.querySelector('.nav-btn:nth-child(3)').classList.add('active');
+        loadFacadePhoto();
+        renderLiveMap();
+      }
+      if (view === 'config') document.getElementById('configBtn').classList.add('active');
+    }
+
+    function renderDefectList() {
+      const container = document.getElementById('defectListContainer');
+      
+      if (defects.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">📋</div>
+            <p>No defects logged yet</p>
+          </div>
+        `;
+      } else {
+        const categoryLabels = {
+          crack: 'Crack',
+          spalling: 'Spalling',
+          water: 'Water Damage',
+          corrosion: 'Corrosion',
+          other: 'Other'
+        };
+        
+        container.innerHTML = defects.map(d => `
+          <div class="defect-item">
+            <img src="${d.image}" alt="Defect ${d.defectNumber}" class="defect-img" onclick="showImage('${d.image}')">
+            <div class="defect-info">
+              <div class="defect-number">
+                Defect #${d.defectNumber}
+                <span class="category-badge category-${d.category}">${categoryLabels[d.category]}</span>
+              </div>
+              <div class="defect-meta">
+                <div><strong>Building:</strong> ${d.building}</div>
+                <div><strong>Face:</strong> ${d.face}</div>
+                <div><strong>Drop:</strong> ${d.drop}</div>
+                <div><strong>Level:</strong> ${d.level}</div>
+                <div><strong>By:</strong> ${d.addedBy}</div>
+              </div>
+              <div class="defect-desc">${d.description}</div>
+            </div>
+            ${userRole === 'manager' ? `<button class="delete-btn" onclick="deleteDefect(${d.id})">🗑️</button>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    function showImage(src) {
+      document.getElementById('modalImage').src = src;
+      document.getElementById('imageModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').classList.remove('active');
+    }
+
+    function updateUI() {
+      document.getElementById('defectCount').textContent = defects.length;
+      document.getElementById('nextDefectNumber').textContent = defects.length + 1;
+    }
+
+    // Export Functions - Professional Reports
+    async function exportWordDoc() {
+      if (userRole !== 'manager') {
+        alert('Only managers can export');
+        return;
+      }
+
+      if (defects.length === 0) {
+        alert('No defects to export');
+        return;
+      }
+
+      try {
+        // Ensure faceNames exists
+        if (!config.faceNames || config.faceNames.length === 0) {
+          config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+        }
+
+        // Calculate category counts
+        const categoryCounts = {
+          crack: 0,
+          spalling: 0,
+          water: 0,
+          corrosion: 0,
+          other: 0
+        };
+        
+        defects.forEach(d => {
+          if (categoryCounts[d.category] !== undefined) {
+            categoryCounts[d.category]++;
+          }
+        });
+
+        const categoryLabels = {
+          crack: 'Cracked Concrete',
+          spalling: 'Spalling',
+          water: 'Water Damage',
+          corrosion: 'Corrosion',
+          other: 'Other'
+        };
+
+        // Create summary page with chart
+        let html = `
+          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+          <head>
+            <meta charset='utf-8'>
+            <title>Defect Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; }
+              .cover-page { text-align: center; padding: 100px 50px; page-break-after: always; }
+              .cover-page h1 { font-size: 36px; color: #2c3e50; margin-bottom: 20px; }
+              .cover-page h2 { font-size: 24px; color: #7f8c8d; margin-bottom: 40px; }
+              .summary { padding: 40px; page-break-after: always; }
+              .summary h2 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-bottom: 30px; }
+              .stats { display: flex; justify-content: space-around; margin: 30px 0; }
+              .stat-box { text-align: center; padding: 20px; background: #ecf0f1; border-radius: 8px; }
+              .stat-number { font-size: 48px; font-weight: bold; color: #3498db; }
+              .stat-label { font-size: 14px; color: #7f8c8d; margin-top: 10px; }
+              .category-list { margin: 30px 0; }
+              .category-item { padding: 15px; margin: 10px 0; background: #f8f9fa; border-left: 4px solid #3498db; }
+              .defect-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+              .defect-table td { border: 1px solid #ddd; padding: 15px; vertical-align: top; }
+              .defect-header { background: #3498db; color: white; font-weight: bold; padding: 10px; }
+              .defect-photo { width: 100%; max-width: 400px; height: auto; }
+              .page-break { page-break-after: always; }
+            </style>
+          </head>
+          <body>
+            <!-- Cover Page -->
+            <div class="cover-page">
+              <h1>Building Inspection Report</h1>
+              <h2>${config.projectName || projectId}</h2>
+              <p style="font-size: 18px; color: #95a5a6; margin-top: 60px;">
+                Generated: ${new Date().toLocaleDateString()}<br>
+                Total Defects Found: ${defects.length}<br>
+                Inspected by: ${config.createdBy || 'Team'}
+              </p>
+            </div>
+
+            <!-- Summary Page -->
+            <div class="summary">
+              <h2>Executive Summary</h2>
+              
+              <div class="stats">
+                <div class="stat-box">
+                  <div class="stat-number">${defects.length}</div>
+                  <div class="stat-label">Total Defects</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-number">${config.faceNames.length}</div>
+                  <div class="stat-label">Faces Inspected</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-number">${new Set(defects.map(d => d.addedBy)).size}</div>
+                  <div class="stat-label">Inspectors</div>
+                </div>
+              </div>
+
+              <h3 style="color: #2c3e50; margin-top: 40px;">Defects by Category</h3>
+              <div class="category-list">
+                ${Object.entries(categoryCounts).filter(([key, count]) => count > 0).map(([key, count]) => `
+                  <div class="category-item">
+                    <strong>${categoryLabels[key]}:</strong> ${count} defect${count !== 1 ? 's' : ''}
+                    (${((count / defects.length) * 100).toFixed(1)}%)
+                  </div>
+                `).join('')}
+              </div>
+
+              <h3 style="color: #2c3e50; margin-top: 40px;">Defects by Face</h3>
+              <div class="category-list">
+                ${config.faceNames.map(faceName => {
+                  const faceCount = defects.filter(d => d.face === faceName).length;
+                  return `
+                    <div class="category-item">
+                      <strong>${faceName}:</strong> ${faceCount} defect${faceCount !== 1 ? 's' : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <!-- Defect Details -->
+            <h2 style="padding: 40px 40px 20px; color: #2c3e50; border-bottom: 3px solid #3498db;">Defect Details</h2>
+        `;
+        
+        // Add defects in 2-column table format like the example
+        for (let i = 0; i < defects.length; i += 2) {
+          const d1 = defects[i];
+          const d2 = defects[i + 1];
+          
+          html += `
+            <table class="defect-table" style="margin: 0 40px 20px;">
+              <tr>
+                ${d1 ? `<td style="width: 50%;">
+                  <img src="${d1.image}" class="defect-photo"/>
+                </td>` : '<td></td>'}
+                ${d2 ? `<td style="width: 50%;">
+                  <img src="${d2.image}" class="defect-photo"/>
+                </td>` : '<td></td>'}
+              </tr>
+              <tr>
+                ${d1 ? `<td>
+                  <strong>Defect: ${d1.defectNumber}</strong>
+                </td>` : '<td></td>'}
+                ${d2 ? `<td>
+                  <strong>Defect: ${d2.defectNumber}</strong>
+                </td>` : '<td></td>'}
+              </tr>
+              <tr>
+                ${d1 ? `<td>
+                  ${categoryLabels[d1.category] || 'Unknown'}<br>
+                  <em>${d1.description}</em><br>
+                  <small>Face: ${d1.face} | Drop: ${d1.drop} | Level: ${d1.level} | By: ${d1.addedBy}</small>
+                </td>` : '<td></td>'}
+                ${d2 ? `<td>
+                  ${categoryLabels[d2.category] || 'Unknown'}<br>
+                  <em>${d2.description}</em><br>
+                  <small>Face: ${d2.face} | Drop: ${d2.drop} | Level: ${d2.level} | By: ${d2.addedBy}</small>
+                </td>` : '<td></td>'}
+              </tr>
+            </table>
+          `;
+          
+          // Page break every 3 rows (6 defects)
+          if ((i + 2) % 6 === 0 && i + 2 < defects.length) {
+            html += '<div class="page-break"></div>';
+          }
+        }
+        
+        html += `
+          </body>
+          </html>
+        `;
+        
+        const blob = new Blob(['\ufeff', html], { 
+          type: 'application/msword;charset=utf-8' 
+        });
+        
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Inspection-Report-${projectId}-${new Date().toISOString().split('T')[0]}.doc`;
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, 100);
+        
+        alert('✅ Professional report downloaded!');
+        
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('❌ Error creating report: ' + error.message + '\n\nPlease check the browser console for details.');
+      }
+    }
+
+    async function exportPDF() {
+      if (userRole !== 'manager') {
+        alert('Only managers can export');
+        return;
+      }
+
+      if (defects.length === 0) {
+        alert('No defects to export');
+        return;
+      }
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Cover Page
+        doc.setFontSize(28);
+        doc.setTextColor(44, 62, 80);
+        doc.text('Building Inspection Report', 105, 100, { align: 'center' });
+        
+        doc.setFontSize(18);
+        doc.setTextColor(127, 140, 141);
+        doc.text(config.projectName || projectId, 105, 120, { align: 'center' });
+        
+        doc.setFontSize(12);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 160, { align: 'center' });
+        doc.text(`Total Defects: ${defects.length}`, 105, 170, { align: 'center' });
+        doc.text(`Inspected by: ${config.createdBy}`, 105, 180, { align: 'center' });
+        
+        // Summary Page
+        doc.addPage();
+        doc.setFontSize(20);
+        doc.setTextColor(44, 62, 80);
+        doc.text('Executive Summary', 20, 20);
+        
+        // Category breakdown
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        let yPos = 40;
+        
+        const categoryCounts = { crack: 0, spalling: 0, water: 0, corrosion: 0, other: 0 };
+        defects.forEach(d => categoryCounts[d.category]++);
+        
+        const categoryLabels = {
+          crack: 'Cracked Concrete',
+          spalling: 'Spalling',
+          water: 'Water Damage',
+          corrosion: 'Corrosion',
+          other: 'Other'
+        };
+        
+        doc.text('Defects by Category:', 20, yPos);
+        yPos += 10;
+        
+        Object.entries(categoryCounts).forEach(([key, count]) => {
+          doc.text(`${categoryLabels[key]}: ${count} (${((count/defects.length)*100).toFixed(1)}%)`, 30, yPos);
+          yPos += 8;
+        });
+        
+        yPos += 10;
+        doc.text('Defects by Face:', 20, yPos);
+        yPos += 10;
+        
+        config.faceNames.forEach(faceName => {
+          const faceCount = defects.filter(d => d.face === faceName).length;
+          doc.text(`${faceName}: ${faceCount}`, 30, yPos);
+          yPos += 8;
+        });
+        
+        // Defect Details
+        defects.forEach((d, idx) => {
+          doc.addPage();
+          
+          doc.setFontSize(16);
+          doc.setTextColor(52, 152, 219);
+          doc.text(`Defect #${d.defectNumber}`, 20, 20);
+          
+          doc.setFontSize(12);
+          doc.setTextColor(0, 0, 0);
+          doc.text(`Category: ${categoryLabels[d.category]}`, 20, 35);
+          doc.text(`Face: ${d.face} | Drop: ${d.drop} | Level: ${d.level}`, 20, 42);
+          doc.text(`Logged by: ${d.addedBy}`, 20, 49);
+          doc.text(`Description: ${d.description}`, 20, 56, { maxWidth: 170 });
+          
+          // Add image
+          if (d.image) {
+            try {
+              doc.addImage(d.image, 'JPEG', 20, 70, 170, 127);
+            } catch (e) {
+              console.error('Error adding image:', e);
+            }
+          }
+        });
+        
+        doc.save(`Inspection-Report-${projectId}-${new Date().toISOString().split('T')[0]}.pdf`);
+        alert('✅ PDF report downloaded!');
+        
+      } catch (error) {
+        console.error('PDF error:', error);
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    function exportDefectMaps() {
+      if (userRole !== 'manager') {
+        alert('Only managers can export');
+        return;
+      }
+      
+      if (defects.length === 0) {
+        alert('No defects to map');
+        return;
+      }
+
+      try {
+        // Ensure faceNames exists
+        if (!config.faceNames || config.faceNames.length === 0) {
+          config.faceNames = Array.from({length: config.numFaces || 4}, (_, i) => `Face ${i + 1}`);
+        }
+
+        let downloadCount = 0;
+        
+        config.faceNames.forEach((faceName, faceIdx) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          canvas.width = 1200;
+          canvas.height = 1600;
+          
+          const margin = 60;
+          const gridWidth = canvas.width - (margin * 2);
+          const gridHeight = canvas.height - 250;
+          const cellWidth = gridWidth / config.maxDrops;
+          const cellHeight = gridHeight / config.maxLevels;
+          
+          ctx.fillStyle = '#1a1a1a';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // Check for facade photo
+          if (config.facadePhotos && config.facadePhotos[faceName]) {
+            const img = new Image();
+            img.onload = function() {
+              ctx.save();
+              ctx.globalAlpha = 0.6;
+              ctx.drawImage(img, margin, 180, gridWidth, gridHeight);
+              ctx.restore();
+              drawFaceMap();
+            };
+            img.onerror = function() {
+              console.error('Error loading facade photo for', faceName);
+              drawFaceMap();
+            };
+            img.src = config.facadePhotos[faceName];
+          } else {
+            drawFaceMap();
+          }
+          
+          function drawFaceMap() {
+            ctx.fillStyle = '#f97316';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText(`${faceName} - Defect Map`, margin, 60);
+            
+            ctx.fillStyle = '#999';
+            ctx.font = '16px Arial';
+            const faceDefects = defects.filter(d => d.face === faceName);
+            ctx.fillText(`Project: ${config.projectName || projectId}`, margin, 95);
+            ctx.fillText(`Defects: ${faceDefects.length}`, margin, 120);
+            ctx.fillText(`Generated: ${new Date().toLocaleString()}`, margin, 145);
+            
+            const gridStartY = 180;
+            
+            // Grid
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(margin, gridStartY, gridWidth, gridHeight);
+            
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            
+            for (let i = 1; i < config.maxLevels; i++) {
+              const y = gridStartY + (i * cellHeight);
+              ctx.beginPath();
+              ctx.moveTo(margin, y);
+              ctx.lineTo(margin + gridWidth, y);
+              ctx.stroke();
+            }
+            
+            for (let i = 1; i < config.maxDrops; i++) {
+              const x = margin + (i * cellWidth);
+              ctx.beginPath();
+              ctx.moveTo(x, gridStartY);
+              ctx.lineTo(x, gridStartY + gridHeight);
+              ctx.stroke();
+            }
+            
+            // Labels
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            
+            for (let i = 0; i < config.maxLevels; i++) {
+              const displayLevel = config.maxLevels - i;
+              const y = gridStartY + (i * cellHeight) + (cellHeight / 2) + 4;
+              ctx.fillText(displayLevel.toString(), margin - 10, y);
+            }
+            
+            ctx.textAlign = 'center';
+            for (let i = 0; i < config.maxDrops; i++) {
+              const x = margin + (i * cellWidth) + (cellWidth / 2);
+              ctx.fillText((i + 1).toString(), x, gridStartY - 10);
+            }
+            
+            // Plot defects with spiral pattern (no overlaps)
+            const defectsByLocation = {};
+            faceDefects.forEach(d => {
+              const key = `${d.drop}-${d.level}`;
+              if (!defectsByLocation[key]) defectsByLocation[key] = [];
+              defectsByLocation[key].push(d);
+            });
+            
+            const categoryColors = {
+              crack: '#ef4444',
+              spalling: '#f97316',
+              water: '#3b82f6',
+              corrosion: '#a855f7',
+              other: '#6b7280'
+            };
+            
+            Object.entries(defectsByLocation).forEach(([key, locationDefects]) => {
+              const [drop, level] = key.split('-').map(Number);
+              
+              if (drop > config.maxDrops || level > config.maxLevels) return;
+              
+              const baseX = margin + ((drop - 1) * cellWidth);
+              const baseY = gridStartY + ((config.maxLevels - level) * cellHeight);
+              const count = locationDefects.length;
+              const markerSize = Math.min(15, cellWidth / (count + 2));
+              
+              locationDefects.forEach((d, idx) => {
+                let x, y;
+                
+                if (count === 1) {
+                  x = baseX + (cellWidth / 2);
+                  y = baseY + (cellHeight / 2);
+                } else {
+                  // Spiral pattern
+                  const angle = (idx / count) * Math.PI * 2;
+                  const radius = Math.min(cellWidth, cellHeight) * 0.3;
+                  x = baseX + (cellWidth / 2) + Math.cos(angle) * radius;
+                  y = baseY + (cellHeight / 2) + Math.sin(angle) * radius;
+                }
+                
+                ctx.fillStyle = categoryColors[d.category] || '#f97316';
+                ctx.beginPath();
+                ctx.arc(x, y, markerSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${Math.max(10, markerSize)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText(d.defectNumber.toString(), x, y + (markerSize / 3));
+              });
+            });
+            
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Arial';
+            const legendY = gridStartY + gridHeight + 40;
+            ctx.fillText('🟠 Markers show defect locations (color = category)', margin, legendY);
+            ctx.fillText('Multiple markers = multiple defects at that location', margin, legendY + 25);
+            
+            canvas.toBlob((blob) => {
+              if (!blob) {
+                console.error('Failed to create blob for', faceName);
+                return;
+              }
+              
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `defect-map-${faceName.replace(/\s+/g, '-')}-${projectId}-${new Date().toISOString().split('T')[0]}.png`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              
+              downloadCount++;
+              if (downloadCount === config.faceNames.length) {
+                setTimeout(() => {
+                  alert(`✅ Generated ${config.faceNames.length} defect maps!`);
+                }, 500);
+              }
+            }, 'image/png');
+          }
+        });
+      } catch (error) {
+        console.error('Map export error:', error);
+        alert('❌ Error creating maps: ' + error.message + '\n\nPlease check the browser console for details.');
+      }
+    }
   </script>
 </body>
 </html>
